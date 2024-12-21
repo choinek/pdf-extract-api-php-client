@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Choinek\PdfExtractApiPhpClient\Http;
 
-use RuntimeException;
-
 class CurlWrapper
 {
     /**
@@ -27,7 +25,7 @@ class CurlWrapper
     {
         $handle = curl_init($url);
         if (false === $handle) {
-            throw new RuntimeException('Failed to initialize cURL session.');
+            throw new \RuntimeException('Failed to initialize cURL session.');
         }
 
         return $handle;

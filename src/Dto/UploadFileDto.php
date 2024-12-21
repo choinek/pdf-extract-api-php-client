@@ -2,9 +2,6 @@
 
 namespace Choinek\PdfExtractApiPhpClient\Dto;
 
-use InvalidArgumentException;
-use RuntimeException;
-
 class UploadFileDto
 {
     public function __construct(
@@ -14,26 +11,26 @@ class UploadFileDto
         private readonly ?string $base64Content = null,
     ) {
         if (!$filePath && !$base64Content) {
-            throw new InvalidArgumentException('Either filePath or base64Content must be provided.');
+            throw new \InvalidArgumentException('Either filePath or base64Content must be provided.');
         }
 
         if ($filePath && $base64Content) {
-            throw new InvalidArgumentException('Provide either filePath or base64Content, not both.');
+            throw new \InvalidArgumentException('Provide either filePath or base64Content, not both.');
         }
 
         if ($filePath && !file_exists($filePath)) {
-            throw new RuntimeException("File not found: {$filePath}");
+            throw new \RuntimeException("File not found: {$filePath}");
         }
 
         if ($base64Content && !base64_decode($base64Content, true)) {
-            throw new InvalidArgumentException('Invalid base64 content.');
+            throw new \InvalidArgumentException('Invalid base64 content.');
         }
     }
 
     public static function fromFile(string $filePath, ?string $mimeType = null): self
     {
         if (!file_exists($filePath)) {
-            throw new RuntimeException("File not found: {$filePath}");
+            throw new \RuntimeException("File not found: {$filePath}");
         }
 
         $fileName = basename($filePath);
@@ -49,7 +46,7 @@ class UploadFileDto
     public static function fromBase64(string $base64Content, string $fileName, string $mimeType): self
     {
         if (!base64_decode($base64Content, true)) {
-            throw new InvalidArgumentException('Invalid base64 content.');
+            throw new \InvalidArgumentException('Invalid base64 content.');
         }
 
         return new self(
@@ -63,7 +60,7 @@ class UploadFileDto
     {
         if (!empty($this->filePath)) {
             if (!file_exists($this->filePath)) {
-                throw new RuntimeException("File not found: {$this->filePath}");
+                throw new \RuntimeException("File not found: {$this->filePath}");
             }
 
             return file_get_contents($this->filePath);
@@ -92,7 +89,7 @@ class UploadFileDto
         finfo_close($finfo);
 
         if (!$mimeType) {
-            throw new RuntimeException("Could not determine MIME type for file: {$filePath}");
+            throw new \RuntimeException("Could not determine MIME type for file: {$filePath}");
         }
 
         return $mimeType;

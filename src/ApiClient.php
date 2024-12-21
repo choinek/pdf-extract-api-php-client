@@ -6,7 +6,6 @@ use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiPhpClient\Dto\GenerateLlamaRequestDto;
 use Choinek\PdfExtractApiPhpClient\Dto\PullLlamaRequestDto;
 use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
-use RuntimeException;
 
 class ApiClient
 {
@@ -46,14 +45,14 @@ class ApiClient
         $responseBody = $this->curlWrapper->exec($ch);
 
         if (false === $responseBody) {
-            throw new RuntimeException('Error: '.$this->curlWrapper->error($ch));
+            throw new \RuntimeException('Error: '.$this->curlWrapper->error($ch));
         }
 
         $statusCode = $this->curlWrapper->getinfo($ch, CURLINFO_HTTP_CODE);
         $this->curlWrapper->close($ch);
 
         if ($statusCode >= 400) {
-            throw new RuntimeException("HTTP error {$statusCode}: {$responseBody}");
+            throw new \RuntimeException("HTTP error {$statusCode}: {$responseBody}");
         }
 
         return json_decode($responseBody, true) ?: [];
