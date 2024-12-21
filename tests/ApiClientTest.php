@@ -38,7 +38,6 @@ class ApiClientTest extends TestCase
         $mockCurlResource = 'mock_curl_resource';
         $responseBody = json_encode(['task_id' => '1234', 'status' => 'pending']);
 
-        $this->curlWrapper->method('init')->willReturn($mockCurlResource);
         $this->curlWrapper->method('exec')->willReturn($responseBody);
         $this->curlWrapper->method('getinfo')->willReturn(200);
         $this->curlWrapper->method('setopt')->willReturn(true);
@@ -54,10 +53,8 @@ class ApiClientTest extends TestCase
     {
         $llamaDto = new GenerateLlamaRequestDto('llama-model', 'Extract data from PDF');
 
-        $mockCurlResource = 'mock_curl_resource';
         $responseBody = json_encode(['generated_text' => 'Sample output']);
 
-        $this->curlWrapper->method('init')->willReturn($mockCurlResource);
         $this->curlWrapper->method('exec')->willReturn($responseBody);
         $this->curlWrapper->method('getinfo')->willReturn(200);
         $this->curlWrapper->method('setopt')->willReturn(true);
@@ -76,7 +73,6 @@ class ApiClientTest extends TestCase
         $mockCurlResource = 'mock_curl_resource';
         $responseBody = json_encode(['status' => 'model pulled successfully']);
 
-        $this->curlWrapper->method('init')->willReturn($mockCurlResource);
         $this->curlWrapper->method('exec')->willReturn($responseBody);
         $this->curlWrapper->method('getinfo')->willReturn(200);
         $this->curlWrapper->method('setopt')->willReturn(true);
@@ -93,9 +89,6 @@ class ApiClientTest extends TestCase
         $fileDto = UploadFileDto::fromBase64(base64_encode('PDF content'), 'file.pdf', 'application/pdf');
         $ocrDto = new OcrRequestDto('tesseract', 'model-name', $fileDto);
 
-        $mockCurlResource = 'mock_curl_resource';
-
-        $this->curlWrapper->method('init')->willReturn($mockCurlResource);
         $this->curlWrapper->method('exec')->willReturn(false);
         $this->curlWrapper->method('getinfo')->willReturn(500);
         $this->curlWrapper->method('error')->willReturn('Internal Server Error');
