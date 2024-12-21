@@ -1,0 +1,60 @@
+grumphp:
+    process_timeout: 1200
+    ignore_unstaged_changes: false
+    stop_on_failure: true
+    ascii: ~
+    tasks:
+        git_blacklist:
+            keywords:
+                - "die\\("
+                - "print_r\\("
+                - "var_dump\\("
+                - "console.log"
+            regexp_type: E
+            triggered_by: ['php', 'js']
+        composer:
+            file: './composer.json'
+            no_check_all: true
+            no_check_lock: false
+            no_check_publish: true
+            with_dependencies: false
+            strict: false
+        phplint:
+            exclude: ['vendor']
+            jobs: ~
+            short_open_tag: false
+            ignore_patterns: []
+            triggered_by: ['php', 'phtml', 'php3', 'php4', 'php5']
+        yamllint:
+            whitelist_patterns: []
+            ignore_patterns: []
+            object_support: false
+            exception_on_invalid_type: true
+            parse_constant: true
+            parse_custom_tags: true
+        jsonlint:
+            detect_key_conflicts: true
+        phpcs:
+            standard: 'PSR12'
+            warning_severity: 0
+            triggered_by: ['php']
+        phpcsfixer:
+            config: '.php-cs-fixer.dist.php'
+            using_cache: true
+            config_contains_finder: true
+            verbose: true
+            diff: false
+            triggered_by: ['php']
+        phpmd:
+            ruleset: ['phpmd_ruleset.xml']
+            report_format: 'text'
+            triggered_by: ['php']
+        phpstan:
+            autoload_file: null
+            configuration: './phpstan.dist.neon'
+            level: max
+            force_patterns: []
+            ignore_patterns: []
+            triggered_by: ['php']
+            memory_limit: '-1'
+            use_grumphp_paths: true
