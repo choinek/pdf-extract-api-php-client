@@ -20,14 +20,14 @@ class ApiClientTest extends TestCase
 {
     private CurlWrapper&MockObject $curlWrapper;
     private ApiClient $apiClient;
-    private const BASE_URL = 'https://mock.localhost';
-    private const USERNAME = 'mockUser';
-    private const PASSWORD = 'mockPass';
+    private const HTTPS_MOCK_LOCALHOST = 'https://mock.localhost';
+    private const MOCK_USER = 'mockUser';
+    private const MOCK_PASS = 'mockPass';
 
     protected function setUp(): void
     {
         $this->curlWrapper = $this->createMock(CurlWrapper::class);
-        $this->apiClient = new ApiClient($this->curlWrapper, self::BASE_URL, self::USERNAME, self::PASSWORD);
+        $this->apiClient = new ApiClient($this->curlWrapper, self::HTTPS_MOCK_LOCALHOST, self::MOCK_USER, self::MOCK_PASS);
     }
 
     public function testRequestOcr(): void
@@ -70,7 +70,6 @@ class ApiClientTest extends TestCase
     {
         $pullDto = new PullLlamaRequestDto('llama-model');
 
-        $mockCurlResource = 'mock_curl_resource';
         $responseBody = json_encode(['status' => 'model pulled successfully']);
 
         $this->curlWrapper->method('exec')->willReturn($responseBody);

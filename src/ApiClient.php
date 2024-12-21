@@ -31,10 +31,10 @@ class ApiClient
     private function request(string $method, string $endpoint, array $options = []): array
     {
         $url = rtrim($this->baseUrl, '/').$endpoint;
-        $ch = $this->curlWrapper->init($url);
+        $curlWrapper = $this->curlWrapper->init($url);
 
-        $this->curlWrapper->setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-        $this->curlWrapper->setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $curlWrapper->setopt(CURLOPT_CUSTOMREQUEST, strtoupper($method));
+        $curlWrapper->setopt(CURLOPT_RETURNTRANSFER, true);
 
         $headers = $options['headers'] ?? [];
         $data = $options['body'] ?? null;
@@ -43,29 +43,29 @@ class ApiClient
         foreach ($headers as $name => $value) {
             $headerList[] = "{$name}: {$value}";
         }
-        $this->curlWrapper->setopt($ch, CURLOPT_HTTPHEADER, $headerList);
+        $curlWrapper->setopt(CURLOPT_HTTPHEADER, $headerList);
 
         if ($this->username && $this->password) {
-            $this->curlWrapper->setopt($ch, CURLOPT_USERPWD, "{$this->username}:{$this->password}");
+            $curlWrapper->setopt(CURLOPT_USERPWD, "{$this->username}:{$this->password}");
         }
 
         if (null !== $data) {
-            $this->curlWrapper->setopt($ch, CURLOPT_POSTFIELDS, $data);
+            $curlWrapper->setopt(CURLOPT_POSTFIELDS, $data);
         }
 
-        $responseBody = $this->curlWrapper->exec($ch);
+        $responseBody = $curlWrapper->exec();
 
         if (!is_string($responseBody)) {
-            throw new \RuntimeException('Error: '.$this->curlWrapper->error($ch));
+            throw new \RuntimeException('Error: '.$this->curlWrapper->error());
         }
 
-        $statusCode = $this->curlWrapper->getinfo($ch, CURLINFO_HTTP_CODE);
+        $statusCode = $curlWrapper->getinfo(CURLINFO_HTTP_CODE);
         if (is_numeric($statusCode)) {
             $statusCode = (int) $statusCode;
         } else {
             throw new \RuntimeException('HTTP Invalid status code');
         }
-        $this->curlWrapper->close($ch);
+        $curlWrapper->close();
 
         if ($statusCode >= 400) {
             throw new \RuntimeException(sprintf('HTTP error %s: %s', $statusCode, $responseBody));

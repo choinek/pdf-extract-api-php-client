@@ -6,63 +6,44 @@ namespace Choinek\PdfExtractApiPhpClient\Http;
 
 class CurlWrapper
 {
-    /**
-     * Execute a cURL session.
-     *
-     * @param \CurlHandle $ch
-     */
-    public function exec($ch): bool|string
+    private \CurlHandle $curlHandle;
+
+    public function exec(): bool|string
     {
-        return curl_exec($ch);
+        return curl_exec($this->curlHandle);
     }
 
-    public function init(?string $url = null): \CurlHandle
+    public function __construct(string $url)
     {
-        $handle = curl_init($url);
-        if (false === $handle) {
+        $curlHandle = curl_init($url);
+        if (false === $curlHandle) {
             throw new \RuntimeException('Failed to initialize cURL session.');
         }
-
-        return $handle;
+        $this->curlHandle = $curlHandle;
     }
 
-    /**
-     * Set an option for a cURL transfer.
-     *
-     * @param \CurlHandle $ch
-     */
-    public function setopt($ch, int $option, mixed $value): bool
+    public function init(string $url): self
     {
-        return curl_setopt($ch, $option, $value);
+        return new CurlWrapper($url);
     }
 
-    /**
-     * Get information about the last transfer.
-     *
-     * @param \CurlHandle $ch
-     */
-    public function getinfo($ch, int $option): mixed
+    public function setopt(int $option, mixed $value): bool
     {
-        return curl_getinfo($ch, $option);
+        return curl_setopt($this->curlHandle, $option, $value);
     }
 
-    /**
-     * Close a cURL session.
-     *
-     * @param \CurlHandle $ch
-     */
-    public function close($ch): void
+    public function getinfo(int $option): mixed
     {
-        curl_close($ch);
+        return curl_getinfo($this->curlHandle, $option);
     }
 
-    /**
-     * Return the error message for the last cURL operation.
-     *
-     * @param \CurlHandle $ch
-     */
-    public function error($ch): string
+    public function close(): void
     {
-        return curl_error($ch);
+        curl_close($this->curlHandle);
+    }
+
+    public function error(): string
+    {
+        return curl_error($this->curlHandle);
     }
 }

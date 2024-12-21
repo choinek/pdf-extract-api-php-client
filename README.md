@@ -1,3 +1,5 @@
+2024-12-21 - Not usable yet - WIP
+
 # PDF Extract API PHP Client
 
 PHP client for interacting with the [PDF Extract API](https://github.com/CatchTheTornado/pdf-extract-api).
