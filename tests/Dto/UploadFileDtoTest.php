@@ -41,7 +41,7 @@ class UploadFileDtoTest extends TestCase
     public function testFromBase64WithValidContent(): void
     {
         $filePath = self::ASSET_DIR.'/sample.pdf';
-        $fileContents = file_get_contents($filePath);
+        $fileContents = file_get_contents($filePath) ?: '';
         $base64Content = base64_encode($fileContents);
         $this->assertNotEmpty($base64Content);
 
@@ -72,7 +72,7 @@ class UploadFileDtoTest extends TestCase
     public function testGetFileContentsFromBase64(): void
     {
         $filePath = self::ASSET_DIR.'/sample.pdf';
-        $fileContents = file_get_contents($filePath);
+        $fileContents = file_get_contents($filePath) ?: '';
         $base64Content = base64_encode($fileContents);
         $this->assertNotEmpty($base64Content);
 
@@ -85,7 +85,7 @@ class UploadFileDtoTest extends TestCase
     public function testGetBase64EncodedContentsFromFile(): void
     {
         $filePath = self::ASSET_DIR.'/sample.pdf';
-        $fileContents = file_get_contents($filePath);
+        $fileContents = file_get_contents($filePath) ?: '';
         $expectedBase64 = base64_encode($fileContents);
         $this->assertNotEmpty($expectedBase64);
 

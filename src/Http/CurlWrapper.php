@@ -9,19 +9,14 @@ class CurlWrapper
     /**
      * Execute a cURL session.
      *
-     * @param resource $ch
+     * @param \CurlHandle $ch
      */
-    public function exec($ch): string|false
+    public function exec($ch): bool|string
     {
         return curl_exec($ch);
     }
 
-    /**
-     * Initialize a cURL session.
-     *
-     * @return resource
-     */
-    public function init(?string $url = null)
+    public function init(?string $url = null): \CurlHandle
     {
         $handle = curl_init($url);
         if (false === $handle) {
@@ -34,7 +29,7 @@ class CurlWrapper
     /**
      * Set an option for a cURL transfer.
      *
-     * @param resource $ch
+     * @param \CurlHandle $ch
      */
     public function setopt($ch, int $option, mixed $value): bool
     {
@@ -44,7 +39,7 @@ class CurlWrapper
     /**
      * Get information about the last transfer.
      *
-     * @param resource $ch
+     * @param \CurlHandle $ch
      */
     public function getinfo($ch, int $option): mixed
     {
@@ -54,7 +49,7 @@ class CurlWrapper
     /**
      * Close a cURL session.
      *
-     * @param resource $ch
+     * @param \CurlHandle $ch
      */
     public function close($ch): void
     {
@@ -64,7 +59,7 @@ class CurlWrapper
     /**
      * Return the error message for the last cURL operation.
      *
-     * @param resource $ch
+     * @param \CurlHandle $ch
      */
     public function error($ch): string
     {

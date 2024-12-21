@@ -9,8 +9,11 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Choinek\PdfExtractApiPhpClient\ApiClient;
 use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
 use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
+use Choinek\PdfExtractApiPhpClient\Dto\OcrResponseDto;
 use Choinek\PdfExtractApiPhpClient\Dto\GenerateLlamaRequestDto;
+use Choinek\PdfExtractApiPhpClient\Dto\GenerateLlamaResponseDto;
 use Choinek\PdfExtractApiPhpClient\Dto\PullLlamaRequestDto;
+use Choinek\PdfExtractApiPhpClient\Dto\PullLlamaResponseDto;
 use Choinek\PdfExtractApiPhpClient\Dto\UploadFileDto;
 
 class ApiClientTest extends TestCase
@@ -43,11 +46,8 @@ class ApiClientTest extends TestCase
 
         $response = $this->apiClient->requestOcr($ocrDto);
 
-        $this->assertIsArray($response);
-        $this->assertArrayHasKey('task_id', $response);
-        $this->assertArrayHasKey('status', $response);
-        $this->assertSame('1234', $response['task_id']);
-        $this->assertSame('pending', $response['status']);
+        $this->assertInstanceOf(OcrResponseDto::class, $response);
+        $this->assertSame('1234', $response->getTaskId());
     }
 
     public function testGenerateLlama(): void
@@ -65,9 +65,8 @@ class ApiClientTest extends TestCase
 
         $response = $this->apiClient->generateLlama($llamaDto);
 
-        $this->assertIsArray($response);
-        $this->assertArrayHasKey('generated_text', $response);
-        $this->assertSame('Sample output', $response['generated_text']);
+        $this->assertInstanceOf(GenerateLlamaResponseDto::class, $response);
+        $this->assertSame('Sample output', $response->getGeneratedText());
     }
 
     public function testPullLlama(): void
@@ -85,9 +84,8 @@ class ApiClientTest extends TestCase
 
         $response = $this->apiClient->pullLlama($pullDto);
 
-        $this->assertIsArray($response);
-        $this->assertArrayHasKey('status', $response);
-        $this->assertSame('model pulled successfully', $response['status']);
+        $this->assertInstanceOf(PullLlamaResponseDto::class, $response);
+        $this->assertSame('model pulled successfully', $response->getStatus());
     }
 
     public function testRequestOcrWithHttpError(): void

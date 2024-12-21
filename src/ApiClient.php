@@ -5,6 +5,9 @@ namespace Choinek\PdfExtractApiPhpClient;
 use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiPhpClient\Dto\GenerateLlamaRequestDto;
 use Choinek\PdfExtractApiPhpClient\Dto\PullLlamaRequestDto;
+use Choinek\PdfExtractApiPhpClient\Dto\OcrResponseDto;
+use Choinek\PdfExtractApiPhpClient\Dto\GenerateLlamaResponseDto;
+use Choinek\PdfExtractApiPhpClient\Dto\PullLlamaResponseDto;
 use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
 
 class ApiClient
@@ -17,6 +20,14 @@ class ApiClient
     ) {
     }
 
+    /**
+     * @param array{
+     *     headers?: array<string, string>,
+     *     body?: string|null
+     * } $options
+     *
+     * @return array<string|int, mixed>
+     */
     private function request(string $method, string $endpoint, array $options = []): array
     {
         $url = rtrim($this->baseUrl, '/').$endpoint;
@@ -44,41 +55,78 @@ class ApiClient
 
         $responseBody = $this->curlWrapper->exec($ch);
 
-        if (false === $responseBody) {
+        if (!is_string($responseBody)) {
             throw new \RuntimeException('Error: '.$this->curlWrapper->error($ch));
         }
 
         $statusCode = $this->curlWrapper->getinfo($ch, CURLINFO_HTTP_CODE);
+        if (is_numeric($statusCode)) {
+            $statusCode = (int) $statusCode;
+        } else {
+            throw new \RuntimeException('HTTP Invalid status code');
+        }
         $this->curlWrapper->close($ch);
 
         if ($statusCode >= 400) {
-            throw new \RuntimeException("HTTP error {$statusCode}: {$responseBody}");
+            throw new \RuntimeException(sprintf('HTTP error %s: %s', $statusCode, $responseBody));
         }
 
-        return json_decode($responseBody, true) ?: [];
+        $response = json_decode($responseBody, true);
+        if (!is_array($response)) {
+            throw new \RuntimeException('Invalid JSON response');
+        }
+
+        return $response;
     }
 
-    public function requestOcr(OcrRequestDto $dto): array
+    /**
+     * Calls the OCR request API and returns a validated DTO response.
+     *
+     * @param OcrRequestDto $dto the request DTO containing OCR parameters
+     *
+     * @return OcrResponseDto the response DTO containing the task ID
+     */
+    public function requestOcr(OcrRequestDto $dto): OcrResponseDto
     {
-        return $this->request('POST', '/ocr/request', [
+        $response = $this->request('POST', '/ocr/request', [
             'headers' => ['Content-Type' => 'application/json'],
-            'body' => json_encode($dto->toArray()),
+            'body' => json_encode($dto->toArray()) ?: null,
         ]);
+
+        return new OcrResponseDto($response);
     }
 
-    public function generateLlama(GenerateLlamaRequestDto $dto): array
+    /**
+     * Calls the Llama generation API and returns a validated DTO response.
+     *
+     * @param GenerateLlamaRequestDto $dto the request DTO containing model and prompt information
+     *
+     * @return GenerateLlamaResponseDto the response DTO containing the generated text and task details
+     */
+    public function generateLlama(GenerateLlamaRequestDto $dto): GenerateLlamaResponseDto
     {
-        return $this->request('POST', '/llm/generate', [
+        $response = $this->request('POST', '/llm/generate', [
             'headers' => ['Content-Type' => 'application/json'],
-            'body' => json_encode($dto->toArray()),
+            'body' => json_encode($dto->toArray()) ?: null,
         ]);
+
+        return new GenerateLlamaResponseDto($response);
     }
 
-    public function pullLlama(PullLlamaRequestDto $dto): array
+    /**
+     * Calls the Llama pull API to retrieve model data and returns a validated DTO response.
+     *
+     * @param PullLlamaRequestDto $dto the request DTO specifying the model to pull
+     *
+     * @return PullLlamaResponseDto the response DTO containing task ID, status, and model version
+     */
+    public function pullLlama(PullLlamaRequestDto $dto): PullLlamaResponseDto
     {
-        return $this->request('POST', '/llm/pull', [
+        $response = $this->request('POST', '/llm/pull', [
             'headers' => ['Content-Type' => 'application/json'],
-            'body' => json_encode($dto->toArray()),
+            'body' => json_encode($dto->toArray()) ?: null,
         ]);
+
+        return new PullLlamaResponseDto($response);
     }
 }

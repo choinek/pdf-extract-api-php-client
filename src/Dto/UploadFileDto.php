@@ -56,21 +56,27 @@ class UploadFileDto
         );
     }
 
-    public function getFileContents(): ?string
+    public function getFileContents(): string
     {
         if (!empty($this->filePath)) {
             if (!file_exists($this->filePath)) {
                 throw new \RuntimeException("File not found: {$this->filePath}");
             }
 
-            return file_get_contents($this->filePath);
+            $fileContents = file_get_contents($this->filePath);
+
+            if (!$fileContents) {
+                throw new \RuntimeException("Could not read file contents: {$this->filePath}");
+            }
+
+            return $fileContents;
         }
 
         if (!empty($this->base64Content)) {
             return base64_decode($this->base64Content);
         }
 
-        return null;
+        throw new \RuntimeException('Could not read file contents.');
     }
 
     public function getBase64EncodedContents(): string
@@ -79,12 +85,20 @@ class UploadFileDto
             return $this->base64Content;
         }
 
+        $fileContents = $this->getFileContents();
+        if (!$fileContents) {
+            throw new \RuntimeException('Could not read file contents.');
+        }
+
         return base64_encode($this->getFileContents());
     }
 
     private static function resolveMimeType(string $filePath): string
     {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if (!$finfo) {
+            throw new \RuntimeException("Failed to open file with finfo: {$filePath}");
+        }
         $mimeType = finfo_file($finfo, $filePath);
         finfo_close($finfo);
 

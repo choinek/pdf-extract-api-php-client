@@ -9,8 +9,13 @@ class PullLlamaRequestDto
     ) {
     }
 
+    /**
+     * @return array{model: string}
+     */
     public function toArray(): array
     {
-        return get_object_vars($this);
+        return[
+            'model' => $this->model,
+        ];
     }
 }

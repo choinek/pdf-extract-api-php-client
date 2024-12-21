@@ -1,6 +1,6 @@
 # PDF Extract API PHP Client
 
-PHP client for interacting with the PDF Extract API.
+PHP client for interacting with the [PDF Extract API](https://github.com/CatchTheTornado/pdf-extract-api).
 
 ## Installation
 
@@ -23,3 +23,6 @@ composer test
 ## License
 
 MIT
+
+## Authors
+- [Adrian Chojnicki](https://github.com/choinek)

@@ -10,8 +10,14 @@ class GenerateLlamaRequestDto
     ) {
     }
 
+    /**
+     * @return array{model: string, prompt: string}
+     */
     public function toArray(): array
     {
-        return get_object_vars($this);
+        return [
+            'model' => $this->model,
+            'prompt' => $this->prompt,
+        ];
     }
 }
