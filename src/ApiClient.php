@@ -95,19 +95,19 @@ class ApiClient
         return $response;
     }
 
-    public function requestOcr(OcrRequestDto $dto): OcrRequestDto
+    public function requestOcr(OcrRequestDto $dto): OcrResponseDto
     {
         $response = $this->request(
             'POST',
             '/ocr/request',
-            OcrRequestDto::class,
+            OcrResponseDto::class,
             [
                 'headers' => ['Content-Type' => 'application/json'],
                 'body' => json_encode($dto->toArray(), JSON_THROW_ON_ERROR),
             ]
         );
 
-        if (!$response instanceof OcrRequestDto) {
+        if (!$response instanceof OcrResponseDto) {
             throw new \UnexpectedValueException('Expected instance of OcrRequestDto, got '.get_class($response));
         }
 
