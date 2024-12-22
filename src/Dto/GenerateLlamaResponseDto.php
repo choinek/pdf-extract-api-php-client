@@ -4,25 +4,20 @@ namespace Choinek\PdfExtractApiPhpClient\Dto;
 
 final class GenerateLlamaResponseDto implements ResponseDtoInterface
 {
-    /**
-     * @var string The generated text from the API response
-     */
-    private readonly string $generatedText;
+    public function __construct(
+        private readonly string $generatedText,
+    ) {
+    }
 
-    /**
-     * GenerateLlamaResponseDto constructor.
-     *
-     * @param array<int|string, mixed> $response The raw API response as an associative array
-     *
-     * @throws \InvalidArgumentException if the response does not contain a valid 'generated_text' field
-     */
-    public function __construct(array $response)
+    public static function fromResponse(string $responseBody): self
     {
+        $response = json_decode($responseBody, true);
+
         if (!isset($response['generated_text']) || !is_string($response['generated_text'])) {
-            throw new \InvalidArgumentException('Invalid generated_text in response');
+            throw new \InvalidArgumentException('Invalid generated_text in response: '.$responseBody);
         }
 
-        $this->generatedText = $response['generated_text'];
+        return new self($response['generated_text']);
     }
 
     /**

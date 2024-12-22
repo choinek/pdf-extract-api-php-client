@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Choinek\PdfExtractApiPhpClient\Dto;
+namespace Tests\Unit\Choinek\PdfExtractApiPhpClient\Dto;
 
 use PHPUnit\Framework\TestCase;
 use Choinek\PdfExtractApiPhpClient\Dto\UploadFileDto;
 
 class UploadFileDtoTest extends TestCase
 {
-    private const ASSET_DIR = __DIR__.'/assets';
+    private const ASSET_DIR = __DIR__.'/../../assets';
 
     public function testFromFileWithValidFile(): void
     {

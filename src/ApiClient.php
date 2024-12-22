@@ -2,13 +2,15 @@
 
 namespace Choinek\PdfExtractApiPhpClient;
 
-use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\GenerateLlamaRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\PullLlamaRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrResponseDto;
-use Choinek\PdfExtractApiPhpClient\Dto\GenerateLlamaResponseDto;
-use Choinek\PdfExtractApiPhpClient\Dto\PullLlamaResponseDto;
+use Choinek\PdfExtractApiPhpClient\Dto\ResponseDtoInterface;
 use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
+use Choinek\PdfExtractApiPhpClient\Dto\OcrUploadRequestDto;
+use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
+use Choinek\PdfExtractApiPhpClient\Dto\OcrResponseDto;
+use Choinek\PdfExtractApiPhpClient\Dto\ClearCacheResponseDto;
+use Choinek\PdfExtractApiPhpClient\Dto\ListFilesResponseDto;
+use Choinek\PdfExtractApiPhpClient\Dto\LoadFileResponseDto;
+use Choinek\PdfExtractApiPhpClient\Dto\DeleteFileResponseDto;
 
 class ApiClient
 {
@@ -26,10 +28,16 @@ class ApiClient
      *     body?: string|null
      * } $options
      *
-     * @return array<string|int, mixed>
+     * @template T of ResponseDtoInterface
+     * @param class-string<T> $responseDtoClass
+     * @return T
      */
-    private function request(string $method, string $endpoint, array $options = []): array
+    protected function request(string $method, string $endpoint, string $responseDtoClass, array $options = []): ResponseDtoInterface
     {
+        if (!class_exists($responseDtoClass) || !is_subclass_of($responseDtoClass, ResponseDtoInterface::class)) {
+            throw new \InvalidArgumentException('Response DTO class must implement '.ResponseDtoInterface::class.'interface');
+        }
+
         $url = rtrim($this->baseUrl, '/').$endpoint;
         $curlWrapper = $this->curlWrapper->init($url);
 
@@ -71,62 +79,89 @@ class ApiClient
             throw new \RuntimeException(sprintf('HTTP error %s: %s', $statusCode, $responseBody));
         }
 
-        $response = json_decode($responseBody, true);
-        if (!is_array($response)) {
-            throw new \RuntimeException('Invalid JSON response');
-        }
-
-        return $response;
+        return $responseDtoClass::fromResponse($responseBody);
     }
 
-    /**
-     * Calls the OCR request API and returns a validated DTO response.
-     *
-     * @param OcrRequestDto $dto the request DTO containing OCR parameters
-     *
-     * @return OcrResponseDto the response DTO containing the task ID
-     */
+    public function uploadFile(OcrUploadRequestDto $dto): OcrResponseDto
+    {
+        return $this->request(
+            'POST',
+            '/ocr/upload',
+            OcrResponseDto::class,
+            [
+                'headers' => ['Content-Type' => 'multipart/form-data'],
+                'body' => $dto->toMultipartFormData(),
+            ]
+        );
+    }
+
     public function requestOcr(OcrRequestDto $dto): OcrResponseDto
     {
-        $response = $this->request('POST', '/ocr/request', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'body' => json_encode($dto->toArray()) ?: null,
-        ]);
-
-        return new OcrResponseDto($response);
+        return $this->request(
+            'POST',
+            '/ocr/request',
+            OcrResponseDto::class,
+            [
+                'headers' => ['Content-Type' => 'application/json'],
+                'body' => json_encode($dto->toArray()),
+            ]
+        );
     }
 
-    /**
-     * Calls the Llama generation API and returns a validated DTO response.
-     *
-     * @param GenerateLlamaRequestDto $dto the request DTO containing model and prompt information
-     *
-     * @return GenerateLlamaResponseDto the response DTO containing the generated text and task details
-     */
-    public function generateLlama(GenerateLlamaRequestDto $dto): GenerateLlamaResponseDto
+    public function getResult(string $taskId): OcrResponseDto
     {
-        $response = $this->request('POST', '/llm/generate', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'body' => json_encode($dto->toArray()) ?: null,
-        ]);
-
-        return new GenerateLlamaResponseDto($response);
+        return $this->request(
+            'GET',
+            "/ocr/result/{$taskId}",
+            OcrResponseDto::class
+        );
     }
 
-    /**
-     * Calls the Llama pull API to retrieve model data and returns a validated DTO response.
-     *
-     * @param PullLlamaRequestDto $dto the request DTO specifying the model to pull
-     *
-     * @return PullLlamaResponseDto the response DTO containing task ID, status, and model version
-     */
-    public function pullLlama(PullLlamaRequestDto $dto): PullLlamaResponseDto
+    public function clearCache(): ClearCacheResponseDto
     {
-        $response = $this->request('POST', '/llm/pull', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'body' => json_encode($dto->toArray()) ?: null,
-        ]);
+        return $this->request(
+            'POST',
+            '/ocr/clear_cache',
+            ClearCacheResponseDto::class
+        );
+    }
 
-        return new PullLlamaResponseDto($response);
+    public function listFiles(string $storageProfile = 'default'): ListFilesResponseDto
+    {
+        return $this->request(
+            'GET',
+            '/storage/list',
+            ListFilesResponseDto::class,
+            [
+                'headers' => ['Content-Type' => 'application/json'],
+                'body' => json_encode(['storage_profile' => $storageProfile]),
+            ]
+        );
+    }
+
+    public function loadFile(string $fileName, string $storageProfile = 'default'): LoadFileResponseDto
+    {
+        return $this->request(
+            'GET',
+            '/storage/load',
+            LoadFileResponseDto::class,
+            [
+                'headers' => ['Content-Type' => 'application/json'],
+                'body' => json_encode(['file_name' => $fileName, 'storage_profile' => $storageProfile]),
+            ]
+        );
+    }
+
+    public function deleteFile(string $fileName, string $storageProfile = 'default'): DeleteFileResponseDto
+    {
+        return $this->request(
+            'DELETE',
+            '/storage/delete',
+            DeleteFileResponseDto::class,
+            [
+                'headers' => ['Content-Type' => 'application/json'],
+                'body' => json_encode(['file_name' => $fileName, 'storage_profile' => $storageProfile]),
+            ]
+        );
     }
 }

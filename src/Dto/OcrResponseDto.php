@@ -4,30 +4,45 @@ namespace Choinek\PdfExtractApiPhpClient\Dto;
 
 final class OcrResponseDto implements ResponseDtoInterface
 {
-    private readonly string|int $taskId;
+    public function __construct(
+        private readonly ?string $taskId = null,
+        private readonly ?string $text = null,
+    ) {
+    }
 
-    /**
-     * @param array<string|int, mixed> $response
-     */
-    public function __construct(array $response)
+    public static function fromResponse(string $responseBody): self
     {
-        if (!isset($response['task_id']) || !is_scalar($response['task_id']) || (!is_string($response['task_id']) && !is_int($response['task_id']))) {
-            throw new \InvalidArgumentException('Invalid task_id in response. It must be a string or an integer.');
+        $response = json_decode($responseBody, true);
+
+        $taskId = $response['task_id'] ?? null;
+        $text = $response['text'] ?? null;
+
+        if (null !== $taskId && !is_string($taskId)) {
+            throw new \InvalidArgumentException('Invalid task_id in response: '.$responseBody);
         }
 
-        $this->taskId = $response['task_id'];
+        if (null !== $text && !is_string($text)) {
+            throw new \InvalidArgumentException('Invalid text in response: '.$responseBody);
+        }
+
+        return new self($taskId, $text);
     }
 
-    /**
-     * @return array{task_id: string|int}
-     */
-    public function toArray(): array
-    {
-        return ['task_id' => $this->taskId];
-    }
-
-    public function getTaskId(): string|int
+    public function getTaskId(): ?string
     {
         return $this->taskId;
+    }
+
+    public function getText(): ?string
+    {
+        return $this->text;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'task_id' => $this->taskId,
+            'text' => $this->text,
+        ];
     }
 }

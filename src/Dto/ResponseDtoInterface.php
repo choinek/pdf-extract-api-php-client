@@ -10,4 +10,9 @@ interface ResponseDtoInterface
      * @return array<string, mixed>
      */
     public function toArray(): array;
+
+    /**
+     * Create a DTO representation from API response.
+     */
+    public static function fromResponse(string $responseBody): ResponseDtoInterface;
 }
