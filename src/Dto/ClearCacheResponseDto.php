@@ -9,7 +9,7 @@ final class ClearCacheResponseDto implements ResponseDtoInterface
     ) {
     }
 
-    public static function fromResponse(string $responseBody): self
+    public static function fromResponse(string $responseBody): ClearCacheResponseDto
     {
         $response = json_decode($responseBody, true);
 

@@ -2,6 +2,7 @@
 
 namespace Choinek\PdfExtractApiPhpClient;
 
+use Choinek\PdfExtractApiPhpClient\Dto\OcrResultResponseDto;
 use Choinek\PdfExtractApiPhpClient\Dto\ResponseDtoInterface;
 use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
 use Choinek\PdfExtractApiPhpClient\Dto\OcrUploadRequestDto;
@@ -23,21 +24,14 @@ class ApiClient
     }
 
     /**
+     * @param class-string<ResponseDtoInterface> $responseDtoClass
      * @param array{
      *     headers?: array<string, string>,
-     *     body?: string|null
+     *     body?: string|array<string, string>|null
      * } $options
-     *
-     * @template T of ResponseDtoInterface
-     * @param class-string<T> $responseDtoClass
-     * @return T
      */
     protected function request(string $method, string $endpoint, string $responseDtoClass, array $options = []): ResponseDtoInterface
     {
-        if (!class_exists($responseDtoClass) || !is_subclass_of($responseDtoClass, ResponseDtoInterface::class)) {
-            throw new \InvalidArgumentException('Response DTO class must implement '.ResponseDtoInterface::class.'interface');
-        }
-
         $url = rtrim($this->baseUrl, '/').$endpoint;
         $curlWrapper = $this->curlWrapper->init($url);
 
@@ -76,7 +70,7 @@ class ApiClient
         $curlWrapper->close();
 
         if ($statusCode >= 400) {
-            throw new \RuntimeException(sprintf('HTTP error %s: %s', $statusCode, $responseBody));
+            throw new \RuntimeException(sprintf('%s HTTP error %s: %s', __METHOD__, $statusCode, $responseBody), $statusCode);
         }
 
         return $responseDtoClass::fromResponse($responseBody);
@@ -84,7 +78,7 @@ class ApiClient
 
     public function uploadFile(OcrUploadRequestDto $dto): OcrResponseDto
     {
-        return $this->request(
+        $response = $this->request(
             'POST',
             '/ocr/upload',
             OcrResponseDto::class,
@@ -93,75 +87,117 @@ class ApiClient
                 'body' => $dto->toMultipartFormData(),
             ]
         );
+
+        if (!$response instanceof OcrResponseDto) {
+            throw new \UnexpectedValueException('Expected instance of OcrResponseDto, got '.get_class($response));
+        }
+
+        return $response;
     }
 
-    public function requestOcr(OcrRequestDto $dto): OcrResponseDto
+    public function requestOcr(OcrRequestDto $dto): OcrRequestDto
     {
-        return $this->request(
+        $response = $this->request(
             'POST',
             '/ocr/request',
-            OcrResponseDto::class,
+            OcrRequestDto::class,
             [
                 'headers' => ['Content-Type' => 'application/json'],
-                'body' => json_encode($dto->toArray()),
+                'body' => json_encode($dto->toArray(), JSON_THROW_ON_ERROR),
             ]
         );
+
+        if (!$response instanceof OcrRequestDto) {
+            throw new \UnexpectedValueException('Expected instance of OcrRequestDto, got '.get_class($response));
+        }
+
+        return $response;
     }
 
-    public function getResult(string $taskId): OcrResponseDto
+    public function getResult(string $taskId): OcrResultResponseDto
     {
-        return $this->request(
+        $response = $this->request(
             'GET',
             "/ocr/result/{$taskId}",
-            OcrResponseDto::class
+            OcrResultResponseDto::class
         );
+
+        if (!$response instanceof OcrResultResponseDto) {
+            throw new \UnexpectedValueException('Expected instance of OcrResultResponseDto, got '.get_class($response));
+        }
+
+        return $response;
     }
 
     public function clearCache(): ClearCacheResponseDto
     {
-        return $this->request(
+        $response = $this->request(
             'POST',
             '/ocr/clear_cache',
             ClearCacheResponseDto::class
         );
+
+        if (!$response instanceof ClearCacheResponseDto) {
+            throw new \UnexpectedValueException('Expected instance of ClearCacheResponseDto, got '.get_class($response));
+        }
+
+        return $response;
     }
 
     public function listFiles(string $storageProfile = 'default'): ListFilesResponseDto
     {
-        return $this->request(
+        $response = $this->request(
             'GET',
             '/storage/list',
             ListFilesResponseDto::class,
             [
                 'headers' => ['Content-Type' => 'application/json'],
-                'body' => json_encode(['storage_profile' => $storageProfile]),
+                'body' => json_encode(['storage_profile' => $storageProfile], JSON_THROW_ON_ERROR),
             ]
         );
+
+        if (!$response instanceof ListFilesResponseDto) {
+            throw new \UnexpectedValueException('Expected instance of ListFilesResponseDto, got '.get_class($response));
+        }
+
+        return $response;
     }
 
     public function loadFile(string $fileName, string $storageProfile = 'default'): LoadFileResponseDto
     {
-        return $this->request(
+        $response = $this->request(
             'GET',
             '/storage/load',
             LoadFileResponseDto::class,
             [
                 'headers' => ['Content-Type' => 'application/json'],
-                'body' => json_encode(['file_name' => $fileName, 'storage_profile' => $storageProfile]),
+                'body' => json_encode(['file_name' => $fileName, 'storage_profile' => $storageProfile], JSON_THROW_ON_ERROR),
             ]
         );
+
+        if (!$response instanceof LoadFileResponseDto) {
+            throw new \UnexpectedValueException('Expected instance of LoadFileResponseDto, got '.get_class($response));
+        }
+
+        return $response;
     }
 
     public function deleteFile(string $fileName, string $storageProfile = 'default'): DeleteFileResponseDto
     {
-        return $this->request(
+        $response = $this->request(
             'DELETE',
             '/storage/delete',
             DeleteFileResponseDto::class,
             [
                 'headers' => ['Content-Type' => 'application/json'],
-                'body' => json_encode(['file_name' => $fileName, 'storage_profile' => $storageProfile]),
+                'body' => json_encode(['file_name' => $fileName, 'storage_profile' => $storageProfile], JSON_THROW_ON_ERROR),
             ]
         );
+
+        if (!$response instanceof DeleteFileResponseDto) {
+            throw new \UnexpectedValueException('Expected instance of DeleteFileResponseDto, got '.get_class($response));
+        }
+
+        return $response;
     }
 }

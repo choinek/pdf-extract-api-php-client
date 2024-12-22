@@ -9,6 +9,9 @@ namespace Tests\Utility\Choinek\PdfExtractApiPhpClient;
  */
 class AssetDownloader
 {
+    /**
+     * @var array<int, array{url: string, path: string}>
+     */
     public static array $assetsToDownload = [
         [
             'url' => 'https://raw.githubusercontent.com/CatchTheTornado/pdf-extract-api/main/examples/example-invoice.pdf',
@@ -31,6 +34,10 @@ class AssetDownloader
 
     public function download(string $url, string $savePath): void
     {
+        if (empty($url)) {
+            throw new \InvalidArgumentException('URL is empty');
+        }
+
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
