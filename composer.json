@@ -20,6 +20,13 @@
             "Choinek\\PdfExtractApiPhpClient\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Integration\\Choinek\\PdfExtractApiPhpClient\\": "tests/Integration",
+            "Tests\\Unit\\Choinek\\PdfExtractApiPhpClient\\": "tests/Unit",
+            "Tests\\Utility\\Choinek\\PdfExtractApiPhpClient\\": "tests/Utility"
+        }
+    },
     "license": "GPL-3.0-or-later",
     "authors": [
         {
@@ -32,7 +39,7 @@
         "test": "vendor/bin/phpunit --testdox",
         "cs-fix": "vendor/bin/php-cs-fixer fix",
         "lint": "vendor/bin/phpstan",
-        "grump": "php -d error_reporting='E_ALL & ~E_DEPRECATED' vendor/bin/grumphp run"
+        "grump": "php vendor/bin/grumphp run"
     },
     "suggest": {
         "ext-curl": "Required to use the library as it relies on cURL for HTTP requests."
