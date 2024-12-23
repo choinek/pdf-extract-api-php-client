@@ -49,7 +49,7 @@ final class OcrResultResponseDto implements ResponseDtoInterface
      */
     public function getState(): string
     {
-        return $this->state;
+        return strtolower($this->state);
     }
 
     /**
