@@ -48,3 +48,10 @@ tests/_support/_generated/
 /autoload.php
 /*.map
 /*.py
+
+# PHP Library Test Docker files
+docker-compose.yml
+docker-compose.test.yml
+Dockerfile
+Makefile
+php-library-test-docker-output/
