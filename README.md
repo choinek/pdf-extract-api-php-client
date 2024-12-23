@@ -1,4 +1,4 @@
-2024-12-21 - Not usable yet - WIP
+2024-12-22 - Almost ready but still WIP
 
 # PDF Extract API PHP Client
 
@@ -16,11 +16,24 @@ Ensure `ext-curl` is enabled in your PHP environment.
 
 ## Tests
 
-Run tests with:
+### Internal Tests (Unit + Integration)
+
+Run internal tests with:
 
 ```bash
 composer test
 ```
+
+### External Tests (Functional)
+
+In order to run functional tests, you need to have the [PDF Extract API](https://github.com/CatchTheTornado/pdf-extract-api)
+installed and running. Currently only http://localhost:8000 is supported for tests. (@todo)
+
+Run functional tests with:
+```bash
+composer test-functional
+```
+
 
 ## License
 

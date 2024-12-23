@@ -114,4 +114,15 @@ class ApiClientTest extends TestCase
             $this->assertStringContainsString($textContains, $ocrResultResponse->getResult());
         }
     }
+
+
+    /**
+     * @depends testReadTextFromImagesUsingOcrRequestMethod
+     */
+    public function testStorageList(): void
+    {
+        $storageListResponse = $this->apiClient->storageList();
+
+        $this->assertNotEmpty($storageListResponse->toArray());
+    }
 }
