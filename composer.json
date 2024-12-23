@@ -38,8 +38,12 @@
     ],
     "minimum-stability": "stable",
     "scripts": {
-        "php-library-test-docker-cmd": "vendor/bin/phpunit --testdox --filter \"^(?!.*Functional).*\"",
-        "test": "vendor/bin/phpunit --testdox",
+        "php-library-test-docker-cmd": "vendor/bin/phpunit --testsuite Internal --testdox ",
+        "test": "vendor/bin/phpunit --testsuite Internal --testdox ",
+        "test-unit": "vendor/bin/phpunit --testsuite Unit --testdox",
+        "test-integration": "vendor/bin/phpunit --testsuite Integration --testdox",
+        "test-functional": "vendor/bin/phpunit --testsuite Functional --testdox",
+        "test-all": "vendor/bin/phpunit --testdox",
         "cs-fix": "vendor/bin/php-cs-fixer fix",
         "lint": "vendor/bin/phpstan",
         "grump": "php vendor/bin/grumphp run"

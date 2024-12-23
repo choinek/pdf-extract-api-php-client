@@ -6,9 +6,7 @@ namespace Tests\Functional\Choinek\PdfExtractApiPhpClient;
 
 use Choinek\PdfExtractApiPhpClient\ApiClient;
 use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\GenerateLlamaRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\PullLlamaRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\UploadFileDto;
+use Choinek\PdfExtractApiPhpClient\Dto\OcrRequest\UploadFileDto;
 use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
 use PHPUnit\Framework\TestCase;
 use Tests\Utility\Choinek\PdfExtractApiPhpClient\AssetDownloader;
@@ -38,7 +36,7 @@ class ApiClientTest extends TestCase
             true
         );
 
-        $response = $this->apiClient->requestOcr($ocrRequest);
+        $response = $this->apiClient->ocrRequest($ocrRequest);
 
         $this->assertNotNull($response->getTaskId());
     }
