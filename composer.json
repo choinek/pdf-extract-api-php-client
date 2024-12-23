@@ -36,8 +36,8 @@
     ],
     "minimum-stability": "stable",
     "scripts": {
-        "php-library-test-docker-cmd": "vendor/bin/phpunit --testdox",
-        "test": "composer php-library-test-docker-command",
+        "php-library-test-docker-cmd": "vendor/bin/phpunit --testdox --filter \"^(?!.*Functional).*\"",
+        "test": "vendor/bin/phpunit --testdox",
         "cs-fix": "vendor/bin/php-cs-fixer fix",
         "lint": "vendor/bin/phpstan",
         "grump": "php vendor/bin/grumphp run"
