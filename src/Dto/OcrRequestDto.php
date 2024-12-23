@@ -2,6 +2,8 @@
 
 namespace Choinek\PdfExtractApiPhpClient\Dto;
 
+use Choinek\PdfExtractApiPhpClient\Dto\OcrRequest\UploadFileDto;
+
 class OcrRequestDto
 {
     public function __construct(

@@ -7,7 +7,7 @@ namespace Tests\Integration\Choinek\PdfExtractApiPhpClient;
 use PHPUnit\Framework\TestCase;
 use Choinek\PdfExtractApiPhpClient\ApiClient;
 use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\UploadFileDto;
+use Choinek\PdfExtractApiPhpClient\Dto\OcrRequest\UploadFileDto;
 use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
 
 class ApiClientTest extends TestCase
@@ -68,12 +68,17 @@ class ApiClientTest extends TestCase
         }
 
 
+        if (function_exists('pcntl_alarm')) {
+            pcntl_alarm(self::$timeoutSeconds);
+        }
 
-        pcntl_alarm(self::$timeoutSeconds);
-        pcntl_signal(SIGALRM, function () {
-            self::terminateServer();
-            self::fail('Mock Server process terminated due to timeout. Test should not run longer than few seconds.');
-        });
+        if (function_exists('pcntl_signal')) {
+            pcntl_signal(SIGALRM, function () {
+                self::terminateServer();
+                self::fail('Mock Server process terminated due to timeout. Test should not run longer than few seconds.');
+            });
+        }
+
     }
 
     private static function checkIfServerStarted(): bool
@@ -127,7 +132,7 @@ class ApiClientTest extends TestCase
             $uploadFileDto
         );
 
-        $response = $client->requestOcr($ocrRequestDto);
+        $response = $client->ocrRequest($ocrRequestDto);
 
         $this->assertEquals('uuid_task_id_ocr_request', $response->getTaskId());
     }
@@ -139,7 +144,7 @@ class ApiClientTest extends TestCase
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
-        $response = $client->clearCache();
+        $response = $client->ocrClearCache();
 
         $this->assertTrue($response->isSuccess());
     }
@@ -151,7 +156,7 @@ class ApiClientTest extends TestCase
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
-        $response = $client->listFiles();
+        $response = $client->storageList();
 
         $this->assertEquals(['file1.txt', 'file2.pdf'], $response->getFiles());
     }
@@ -163,7 +168,7 @@ class ApiClientTest extends TestCase
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
-        $response = $client->loadFile('file1.txt');
+        $response = $client->storageLoadFileByName('file1.txt');
 
         $this->assertEquals('File content here', $response->getContent());
     }
@@ -175,7 +180,7 @@ class ApiClientTest extends TestCase
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
-        $response = $client->deleteFile('file1.txt');
+        $response = $client->storageDeleteFileByName('file1.txt');
 
         $this->assertTrue($response->isSuccess());
     }
@@ -187,7 +192,7 @@ class ApiClientTest extends TestCase
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
-        $response = $client->getResult('id-for-pending-task');
+        $response = $client->ocrResultGetByTaskId('id-for-pending-task');
 
         $this->assertEquals('PENDING', $response->getState(), 'The state of the task is not PENDING.');
         $this->assertEquals('Task is pending...', $response->getStatus(), 'The status for PENDING state is incorrect.');
@@ -200,7 +205,7 @@ class ApiClientTest extends TestCase
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
-        $response = $client->getResult('id-for-progress-task');
+        $response = $client->ocrResultGetByTaskId('id-for-progress-task');
 
         $this->assertEquals('PROGRESS', $response->getState(), 'The state of the task is not PROGRESS.');
         $this->assertEquals('Processing task...', $response->getStatus(), 'The status for PROGRESS state is incorrect.');
@@ -215,7 +220,7 @@ class ApiClientTest extends TestCase
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
-        $response = $client->getResult('id-for-success-task');
+        $response = $client->ocrResultGetByTaskId('id-for-success-task');
 
         $this->assertEquals('SUCCESS', $response->getState(), 'The state of the task is not SUCCESS.');
         $this->assertEquals('Extracted text content', $response->getResult(), 'The extracted text for SUCCESS state is incorrect.');
@@ -231,6 +236,6 @@ class ApiClientTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionCode(404);
 
-        $client->getResult('id-for-non-existing-task');
+        $client->ocrResultGetByTaskId('id-for-non-existing-task');
     }
 }

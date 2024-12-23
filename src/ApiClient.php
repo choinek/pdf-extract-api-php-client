@@ -76,7 +76,7 @@ class ApiClient
         return $responseDtoClass::fromResponse($responseBody);
     }
 
-    public function uploadFile(OcrUploadRequestDto $dto): OcrResponseDto
+    public function ocrUpload(OcrUploadRequestDto $dto): OcrResponseDto
     {
         $response = $this->request(
             'POST',
@@ -95,7 +95,7 @@ class ApiClient
         return $response;
     }
 
-    public function requestOcr(OcrRequestDto $dto): OcrResponseDto
+    public function ocrRequest(OcrRequestDto $dto): OcrResponseDto
     {
         $response = $this->request(
             'POST',
@@ -114,7 +114,7 @@ class ApiClient
         return $response;
     }
 
-    public function getResult(string $taskId): OcrResultResponseDto
+    public function ocrResultGetByTaskId(string $taskId): OcrResultResponseDto
     {
         $response = $this->request(
             'GET',
@@ -129,7 +129,7 @@ class ApiClient
         return $response;
     }
 
-    public function clearCache(): ClearCacheResponseDto
+    public function ocrClearCache(): ClearCacheResponseDto
     {
         $response = $this->request(
             'POST',
@@ -144,7 +144,7 @@ class ApiClient
         return $response;
     }
 
-    public function listFiles(string $storageProfile = 'default'): ListFilesResponseDto
+    public function storageList(string $storageProfile = 'default'): ListFilesResponseDto
     {
         $response = $this->request(
             'GET',
@@ -163,7 +163,7 @@ class ApiClient
         return $response;
     }
 
-    public function loadFile(string $fileName, string $storageProfile = 'default'): LoadFileResponseDto
+    public function storageLoadFileByName(string $fileName, string $storageProfile = 'default'): LoadFileResponseDto
     {
         $response = $this->request(
             'GET',
@@ -182,7 +182,7 @@ class ApiClient
         return $response;
     }
 
-    public function deleteFile(string $fileName, string $storageProfile = 'default'): DeleteFileResponseDto
+    public function storageDeleteFileByName(string $fileName, string $storageProfile = 'default'): DeleteFileResponseDto
     {
         $response = $this->request(
             'DELETE',

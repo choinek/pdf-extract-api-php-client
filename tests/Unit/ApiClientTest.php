@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Choinek\PdfExtractApiPhpClient;
 
+use Choinek\PdfExtractApiPhpClient\Dto\OcrRequest\UploadFileDto;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Choinek\PdfExtractApiPhpClient\ApiClient;
@@ -30,7 +31,7 @@ class ApiClientTest extends TestCase
 
     public function testRequestOcr(): void
     {
-        $fileDto = OcrUploadRequestDto::fromFile('path/to/file.pdf', true, 'model-name', 'strategy');
+        $fileDto = new UploadFileDto('file.pdf', 'application/pdf', __DIR__.'/../assets/sample.pdf');
         $ocrDto = new OcrRequestDto('strategy', 'model-name', $fileDto);
 
         $taskId = '1234';
@@ -51,7 +52,7 @@ class ApiClientTest extends TestCase
                 return true;
             });
 
-        $response = $this->apiClient->requestOcr($ocrDto);
+        $response = $this->apiClient->ocrRequest($ocrDto);
 
         $this->assertInstanceOf(OcrResponseDto::class, $response);
         $this->assertSame($taskId, $response->getTaskId());
@@ -76,7 +77,7 @@ class ApiClientTest extends TestCase
         $this->curlWrapper->method('setopt')->willReturn(true);
         $this->curlWrapper->expects($this->once())->method('close');
 
-        $response = $this->apiClient->clearCache();
+        $response = $this->apiClient->ocrClearCache();
 
         $this->assertInstanceOf(ClearCacheResponseDto::class, $response);
         $this->assertTrue($response->isSuccess());
@@ -91,7 +92,7 @@ class ApiClientTest extends TestCase
         $this->curlWrapper->method('setopt')->willReturn(true);
         $this->curlWrapper->expects($this->once())->method('close');
 
-        $response = $this->apiClient->listFiles();
+        $response = $this->apiClient->storageList();
 
         $this->assertInstanceOf(ListFilesResponseDto::class, $response);
         $this->assertSame(['file1.pdf', 'file2.pdf'], $response->getFiles());
@@ -106,7 +107,7 @@ class ApiClientTest extends TestCase
         $this->curlWrapper->method('setopt')->willReturn(true);
         $this->curlWrapper->expects($this->once())->method('close');
 
-        $response = $this->apiClient->loadFile('file1.pdf');
+        $response = $this->apiClient->storageLoadFileByName('file1.pdf');
 
         $this->assertInstanceOf(LoadFileResponseDto::class, $response);
         $this->assertSame('File content', $response->getContent());
@@ -114,7 +115,8 @@ class ApiClientTest extends TestCase
 
     public function testRequestOcrWithHttpError(): void
     {
-        $fileDto = OcrUploadRequestDto::fromFile('path/to/file.pdf', true, 'model-name', 'strategy');
+        $fileDto = new UploadFileDto('file.pdf', 'application/pdf', __DIR__.'/../assets/sample.pdf');
+
         $ocrDto = new OcrRequestDto('strategy', 'model-name', $fileDto);
 
         $this->curlWrapper->method('exec')->willReturn(false);
@@ -124,6 +126,6 @@ class ApiClientTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Error: Internal Server Error');
 
-        $this->apiClient->requestOcr($ocrDto);
+        $this->apiClient->ocrRequest($ocrDto);
     }
 }

@@ -3,7 +3,7 @@
 namespace Tests\Unit\Choinek\PdfExtractApiPhpClient\Dto;
 
 use PHPUnit\Framework\TestCase;
-use Choinek\PdfExtractApiPhpClient\Dto\UploadFileDto;
+use Choinek\PdfExtractApiPhpClient\Dto\OcrRequest\UploadFileDto;
 
 class UploadFileDtoTest extends TestCase
 {
