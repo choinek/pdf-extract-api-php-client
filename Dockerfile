@@ -22,4 +22,4 @@ RUN if [ ! -f "composer.json" ]; then \
 
 RUN composer install --prefer-dist --no-progress --no-scripts
 
-CMD ["composer", "test"]
+CMD ["composer", "php-library-test-docker-command"]
