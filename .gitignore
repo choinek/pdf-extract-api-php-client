@@ -49,6 +49,9 @@ tests/_support/_generated/
 /*.map
 /*.py
 
+# External assets
+tests/assets/external
+
 # PHP Library Test Docker files
 docker-compose.yml
 docker-compose.test.yml

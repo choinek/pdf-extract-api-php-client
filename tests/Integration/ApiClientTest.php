@@ -194,11 +194,11 @@ class ApiClientTest extends TestCase
 
         $response = $client->ocrResultGetByTaskId('id-for-pending-task');
 
-        $this->assertEquals('PENDING', $response->getState(), 'The state of the task is not PENDING.');
+        $this->assertEquals('pending', $response->getState(), 'The state of the task is not PENDING.');
         $this->assertEquals('Task is pending...', $response->getStatus(), 'The status for PENDING state is incorrect.');
     }
 
-    public function testGetResultProgressState(): void
+    public function testGetResultprogressState(): void
     {
         $client = new ApiClient(
             new CurlWrapper(),
@@ -207,13 +207,13 @@ class ApiClientTest extends TestCase
 
         $response = $client->ocrResultGetByTaskId('id-for-progress-task');
 
-        $this->assertEquals('PROGRESS', $response->getState(), 'The state of the task is not PROGRESS.');
-        $this->assertEquals('Processing task...', $response->getStatus(), 'The status for PROGRESS state is incorrect.');
-        $this->assertArrayHasKey('info', $response->toArray(), 'The "info" key is missing in the PROGRESS response.');
-        $this->assertArrayHasKey('elapsed_time', $response->toArray()['info'], 'The "elapsed_time" key is missing in the PROGRESS info.');
+        $this->assertEquals('progress', $response->getState(), 'The state of the task is not progress.');
+        $this->assertEquals('Processing task...', $response->getStatus(), 'The status for progress state is incorrect.');
+        $this->assertArrayHasKey('info', $response->toArray(), 'The "info" key is missing in the progress response.');
+        $this->assertArrayHasKey('elapsed_time', $response->toArray()['info'], 'The "elapsed_time" key is missing in the progress info.');
     }
 
-    public function testGetResultSuccessState(): void
+    public function testGetResultsuccessState(): void
     {
         $client = new ApiClient(
             new CurlWrapper(),
@@ -222,8 +222,8 @@ class ApiClientTest extends TestCase
 
         $response = $client->ocrResultGetByTaskId('id-for-success-task');
 
-        $this->assertEquals('SUCCESS', $response->getState(), 'The state of the task is not SUCCESS.');
-        $this->assertEquals('Extracted text content', $response->getResult(), 'The extracted text for SUCCESS state is incorrect.');
+        $this->assertEquals('success', $response->getState(), 'The state of the task is not success.');
+        $this->assertEquals('Extracted text content', $response->getResult(), 'The extracted text for success state is incorrect.');
     }
 
     public function testGetResultFailureState(): void
