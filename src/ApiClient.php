@@ -58,7 +58,7 @@ class ApiClient
         $responseBody = $curlWrapper->exec();
 
         if (!is_string($responseBody)) {
-            throw new \RuntimeException('Error: '.$this->curlWrapper->error());
+            throw new \RuntimeException('Error: '.$curlWrapper->error());
         }
 
         $statusCode = $curlWrapper->getinfo(CURLINFO_HTTP_CODE);
