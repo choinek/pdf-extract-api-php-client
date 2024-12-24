@@ -21,5 +21,14 @@
         </testsuite>
     </testsuites>
     <coverage includeUncoveredFiles="true">
+        <report>
+            <html outputDirectory="public/coverage-html"/>
+            <clover outputFile="build/logs/clover.xml"/>
+        </report>
     </coverage>
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
 </phpunit>
