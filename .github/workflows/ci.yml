@@ -39,9 +39,6 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
-
-
-
   grumphp:
     needs: setup
     runs-on: ubuntu-latest
@@ -56,6 +53,9 @@ jobs:
           key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}
 
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
       - name: Run GrumPHP
         run: php vendor/bin/grumphp run --no-interaction --ansi
 
@@ -68,6 +68,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Cache dependencies
         uses: actions/cache@v4
