@@ -12,7 +12,7 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      workspace: ${{ steps.workspace-output.outputs.workspace }}
+      workspace: ${{ github.workspace }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,6 +24,14 @@ jobs:
           extensions: curl, xdebug
           coverage: xdebug
           tools: composer
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
@@ -39,7 +47,7 @@ jobs:
         run: vendor/bin/grumphp run --no-interaction --ansi
 
   test:
-    needs: setup
+    needs: grumphp
     strategy:
       matrix:
         php-version: ['8.1', '8.2', '8.3', '8.4']
