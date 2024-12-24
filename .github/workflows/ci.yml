@@ -28,7 +28,7 @@ jobs:
       - name: Cache Composer dependencies
         uses: actions/cache@v3
         with:
-          path: ~/.composer/cache
+          path: vendor
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
@@ -37,11 +37,6 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
 
 
-      - name: Upload dependencies artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: composer-vendor
-          path: vendor/
 
 
   grumphp:
@@ -51,11 +46,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Download dependencies artifact
-        uses: actions/download-artifact@v3
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
         with:
-          name: composer-vendor
-          path: vendor/
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
       - name: Make GrumPHP executable
         run: chmod +x vendor/bin/grumphp
@@ -73,11 +70,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Download dependencies artifact
-        uses: actions/download-artifact@v3
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
         with:
-          name: composer-vendor
-          path: vendor/
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
       - name: Run PHPUnit with coverage
         run: |
