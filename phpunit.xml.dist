@@ -26,6 +26,7 @@
         </include>
     </coverage>
     <logging>
+        <log type="coverage-html" target="public/coverage-html"/>
         <log type="coverage-clover" target="build/logs/clover.xml"/>
     </logging>
 </phpunit>
