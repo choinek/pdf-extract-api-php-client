@@ -1,3 +1,5 @@
+# File: .github/workflows/common-setup.yml
+
 name: Common Setup
 
 on:

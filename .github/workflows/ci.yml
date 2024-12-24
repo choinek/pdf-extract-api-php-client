@@ -1,4 +1,3 @@
-# Main Workflow: CI Pipeline
 # File: .github/workflows/ci.yml
 
 name: CI Pipeline
@@ -25,45 +24,35 @@ jobs:
     strategy:
       matrix:
         php-version: ['8.1', '8.2', '8.3', '8.4']
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/common-setup.yml
+    with:
+      php-version: ${{ matrix.php-version }}
     steps:
-      - name: Reuse PHP Setup
-        uses: ./.github/workflows/common-setup.yml
-        with:
-          php-version: ${{ matrix.php-version }}
-
-      - name: Run PHPUnit Tests (No Coverage)
-        run: vendor/bin/phpunit --testsuite=all
-
-  generate-coverage:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Reuse PHP Setup
-        uses: ./.github/workflows/common-setup.yml
-        with:
-          php-version: '8.4'
-
       - name: Run PHPUnit with coverage
         run: |
           mkdir -p public/coverage-html build/logs
           vendor/bin/phpunit --coverage-html=public/coverage-html --coverage-clover=build/logs/clover.xml
 
+      - name: Upload HTML coverage artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-coverage-${{ matrix.php-version }}
+          path: public/coverage-html
+
       - name: Upload Clover coverage artifact
         uses: actions/upload-artifact@v3
         with:
-          name: clover-coverage
+          name: clover-coverage-${{ matrix.php-version }}
           path: build/logs/clover.xml
 
   deploy-coverage:
-    needs: generate-coverage
-    if: github.ref == 'refs/heads/main'
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Download HTML coverage artifacts
         uses: actions/download-artifact@v3
         with:
-          name: clover-coverage
+          name: html-coverage-8.4
           path: public/coverage-html
 
       - name: Generate Coverage Badge
@@ -71,7 +60,7 @@ jobs:
         with:
           clover-file: build/logs/clover.xml
           output-path: coverage-badge.svg
-          commit-message: 'poc choinek update coverage badge'
+          commit-message: 'Update coverage badge'
           branch: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
 
