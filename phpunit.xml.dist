@@ -20,9 +20,6 @@
             <directory>tests/Functional</directory>
         </testsuite>
     </testsuites>
-    <coverage processUncoveredFiles="true" enable="true">
-        <include>
-            <directory>src</directory>
-        </include>
+    <coverage includeUncoveredFiles="true">
     </coverage>
 </phpunit>
