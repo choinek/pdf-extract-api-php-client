@@ -57,6 +57,9 @@ jobs:
           name: composer-vendor
           path: vendor/
 
+      - name: Make GrumPHP executable
+        run: chmod +x vendor/bin/grumphp
+
       - name: Run GrumPHP
         run: vendor/bin/grumphp run --no-interaction --ansi
 
