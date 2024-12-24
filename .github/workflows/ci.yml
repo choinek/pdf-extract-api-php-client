@@ -1,5 +1,3 @@
-# File: .github/workflows/ci.yml
-
 name: CI Pipeline
 
 on:
@@ -11,23 +9,53 @@ on:
       - main
 
 jobs:
-  grumphp:
-    uses: ./.github/workflows/common-setup.yml
-    with:
-      php-version: '8.1'
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      workspace: ${{ steps.workspace-output.outputs.workspace }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: curl, xdebug
+          coverage: xdebug
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+  grumphp:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Run GrumPHP
         run: vendor/bin/grumphp run --no-interaction --ansi
 
   test:
-    needs: grumphp
+    needs: setup
     strategy:
       matrix:
         php-version: ['8.1', '8.2', '8.3', '8.4']
-    uses: ./.github/workflows/common-setup.yml
-    with:
-      php-version: ${{ matrix.php-version }}
+    runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: curl, xdebug
+          coverage: xdebug
+          tools: composer
+
       - name: Run PHPUnit with coverage
         run: |
           mkdir -p public/coverage-html build/logs
@@ -60,7 +88,7 @@ jobs:
         with:
           clover-file: build/logs/clover.xml
           output-path: coverage-badge.svg
-          commit-message: 'Update coverage badge'
+          commit-message: 'Ardian poc test Update coverage badge'
           branch: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
 
