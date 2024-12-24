@@ -115,7 +115,6 @@ class ApiClientTest extends TestCase
         }
     }
 
-
     /**
      * @depends testReadTextFromImagesUsingOcrRequestMethod
      */

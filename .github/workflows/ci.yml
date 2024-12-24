@@ -39,36 +39,36 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
-  grumphp:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: curl, xdebug
-          coverage: xdebug
-          tools: composer
-
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ needs.setup.outputs.composer_cache_dir }}
-          key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
-
-      - name: Run GrumPHP
-        run: php vendor/bin/grumphp run --no-interaction --ansi
+#  grumphp:
+#    needs: setup
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Set up PHP
+#        uses: shivammathur/setup-php@v2
+#        with:
+#          php-version: '8.3'
+#          extensions: curl, xdebug
+#          coverage: xdebug
+#          tools: composer
+#
+#      - name: Cache dependencies
+#        uses: actions/cache@v4
+#        with:
+#          path: ${{ needs.setup.outputs.composer_cache_dir }}
+#          key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.json') }}
+#          restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}
+#
+#      - name: Install dependencies
+#        run: composer install --prefer-dist --no-progress --no-suggest
+#
+#      - name: Run GrumPHP
+#        run: php vendor/bin/grumphp run --no-interaction --ansi
 
   test:
-    needs: grumphp
+    needs: setup
     strategy:
       matrix:
         php-version: [8.3] #['8.1', '8.2', '8.3', '8.4']

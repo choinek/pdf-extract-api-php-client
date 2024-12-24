@@ -11,7 +11,6 @@ use Choinek\PdfExtractApiPhpClient\ApiClient;
 use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
 use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiPhpClient\Dto\OcrResponseDto;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrUploadRequestDto;
 use Choinek\PdfExtractApiPhpClient\Dto\ClearCacheResponseDto;
 use Choinek\PdfExtractApiPhpClient\Dto\ListFilesResponseDto;
 use Choinek\PdfExtractApiPhpClient\Dto\LoadFileResponseDto;
