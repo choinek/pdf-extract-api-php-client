@@ -98,7 +98,7 @@ jobs:
       - name: Run PHPUnit with coverage
         run: |
           mkdir -p public/coverage-html build/logs
-          php vendor/bin/phpunit --testsuite Internal --coverage-html=public/coverage-html --coverage-clover=build/logs/clover.xml
+          php vendor/bin/phpunit --testsuite Internal --coverage-html=public/coverage-html --coverage-clover=clover.xml
 
       - name: Upload HTML coverage artifact
         uses: actions/upload-artifact@v3
@@ -110,7 +110,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: clover-coverage-${{ matrix.php-version }}
-          path: build/logs/clover.xml
+          path: clover.xml
 
   deploy-coverage:
     needs: test
@@ -125,7 +125,7 @@ jobs:
       - name: Generate Coverage Badge
         uses: timkrase/phpunit-coverage-badge@v1.2.1
         with:
-          clover-file: build/logs/clover.xml
+          clover-file: clover.xml
           output-path: coverage-badge.svg
           commit-message: 'Ardian poc test Update coverage badge'
           branch: gh-pages

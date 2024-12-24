@@ -23,7 +23,7 @@
     <coverage includeUncoveredFiles="true">
         <report>
             <html outputDirectory="public/coverage-html"/>
-            <clover outputFile="build/logs/clover.xml"/>
+            <clover outputFile="clover.xml"/>
         </report>
     </coverage>
     <source>
