@@ -11,6 +11,9 @@ on:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['8.1', '8.2', '8.3', '8.4']
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,9 +21,10 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v3
         with:
-          php-version: 8.1
-          extensions: curl
-          tools: composer, php-cs-fixer, phpstan, phpmd
+          php-version: ${{ matrix.php-version }}
+          extensions: curl, xdebug
+          coverage: xdebug
+          tools: composer
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
@@ -33,17 +37,54 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run GrumPHP
-        run: vendor/bin/grumphp run --testsuite=pre-commit
+        run: vendor/bin/grumphp run --no-interaction --ansi
 
-  tests:
-    needs: setup
+  test:
+    needs: [setup]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['8.1', '8.2', '8.3', '8.4']
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run Unit and Integration Tests
-        run: vendor/bin/phpunit --testsuite Internal --testdox
+      - name: Run PHPUnit with coverage
+        run: |
+          mkdir -p build/logs
+          vendor/bin/phpunit --coverage-clover=build/logs/clover.xml
 
-      - name: Run Functional Tests
-        run: vendor/bin/phpunit --testsuite Functional --testdox
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage-${{ matrix.php-version }}
+          path: build/logs/clover.xml
+
+  deploy-coverage:
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: build/logs
+
+      - name: Generate Coverage Badge
+        uses: timkrase/phpunit-coverage-badge@v1.2.1
+        with:
+          clover-file: build/logs/clover.xml
+          output-path: coverage-badge.svg
+          commit-message: 'Update coverage badge'
+          branch: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy Coverage to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/logs
+          publish_branch: gh-pages
