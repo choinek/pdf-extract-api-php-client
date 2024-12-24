@@ -12,7 +12,7 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      workspace: ${{ github.workspace }}
+      composer_cache_dir: ${{ steps.composer-cache.outputs.dir }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -52,7 +52,7 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
+          path: ${{ needs.setup.outputs.composer_cache_dir }}
           key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}
 
@@ -72,7 +72,7 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
+          path: ${{ needs.setup.outputs.composer_cache_dir }}
           key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}
 
