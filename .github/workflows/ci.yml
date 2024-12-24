@@ -1,0 +1,49 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v3
+        with:
+          php-version: 8.1
+          extensions: curl
+          tools: composer, php-cs-fixer, phpstan, phpmd
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+  grumphp:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run GrumPHP
+        run: vendor/bin/grumphp run --testsuite=pre-commit
+
+  tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Unit and Integration Tests
+        run: vendor/bin/phpunit --testsuite Internal --testdox
+
+      - name: Run Functional Tests
+        run: vendor/bin/phpunit --testsuite Functional --testdox
