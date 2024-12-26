@@ -122,14 +122,12 @@ jobs:
           name: html-coverage-8.3
           path: public/coverage-html
 
-      - name: Generate Coverage Badge
-        uses: timkrase/phpunit-coverage-badge@v1.2.1
+      - name: Git push to image-data branch
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          clover-file: clover.xml
-          output-path: coverage-badge.svg
-          commit-message: 'Ardian poc test Update coverage badge'
-          branch: gh-pages
-          token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          publish_branch: image-data
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
