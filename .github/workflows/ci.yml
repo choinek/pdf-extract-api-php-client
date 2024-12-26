@@ -112,22 +112,6 @@ jobs:
           name: clover-coverage-${{ matrix.php-version }}
           path: clover.xml
 
-  deploy-coverage:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download HTML coverage artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: html-coverage-8.3
-          path: public/coverage-html
-
-      - name: Download Clover coverage artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: clover-coverage-8.3
-          path: clover.xml
-
       - name: Make code coverage badge
         uses: timkrase/phpunit-coverage-badge@v1.2.1
         with:
