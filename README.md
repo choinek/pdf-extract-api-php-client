@@ -1,6 +1,11 @@
-2024-12-22 - Almost ready but still WIP
-
 # PDF Extract API PHP Client
+
+[![Code Coverage](https://raw.githubusercontent.com/choinek/pdf-extract-api-php-client/refs/heads/image-data/coverage.svg)](https://choinek.github.io/pdf-extract-api-php-client/)
+
+> [!IMPORTANT]
+> 2024-12-26 - Will be finished soon
+
+## Description
 
 PHP client for interacting with the [PDF Extract API](https://github.com/CatchTheTornado/pdf-extract-api).
 
