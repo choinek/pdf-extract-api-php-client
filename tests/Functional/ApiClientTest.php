@@ -22,6 +22,8 @@ class ApiClientTest extends TestCase
     {
         $this->apiClient = new ApiClient(new CurlWrapper(), self::BASE_URL);
         (new AssetDownloader())->setUp();
+
+        $this->apiClient->ocrClearCache();
     }
 
     /**
@@ -79,9 +81,16 @@ class ApiClientTest extends TestCase
         return $data;
     }
 
+    public function testClearCache(): void
+    {
+        $clearCacheResponse = $this->apiClient->ocrClearCache();
+
+        $this->assertTrue($clearCacheResponse->isSuccess());
+    }
+
     /**
      * @dataProvider filesToParseDataProvider
-     *
+     * @depends testClearCache
      * @param array{filepath: string, textContains: string[], model: string} $testDataProvided
      */
     public function testReadTextFromImagesUsingOcrRequestMethod(mixed $testDataProvided): void

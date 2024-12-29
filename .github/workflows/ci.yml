@@ -14,50 +14,39 @@ on:
       - main
 
 jobs:
-  setup:
+  test:
+    strategy:
+      matrix:
+        php-version: [8.3] #['8.1', '8.2', '8.3', '8.4']
     runs-on: ubuntu-latest
-    outputs:
-      composer_cache_dir: ${{ steps.composer-cache.outputs.dir }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: ${{ matrix.php-version }}
           extensions: curl, xdebug
           coverage: xdebug
           tools: composer
-
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}
+#
+#      - name: Get composer cache directory
+#        id: composer-cache
+#        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+#
+#      - name: Cache dependencies
+#        uses: actions/cache@v4
+#        with:
+#          path: ${{ steps.composer-cache.outputs.dir }}
+#          key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.json') }}
+#          restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
-
-#  grumphp:
-#    needs: setup
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
 #
-#      - name: Set up PHP
-#        uses: shivammathur/setup-php@v2
-#        with:
-#          php-version: '8.3'
-#          extensions: curl, xdebug
-#          coverage: xdebug
-#          tools: composer
+#      - name: Install dependencies
+#        run: composer install --prefer-dist --no-progress --no-suggest
 #
 #      - name: Cache dependencies
 #        uses: actions/cache@v4
@@ -65,44 +54,10 @@ jobs:
 #          path: ${{ needs.setup.outputs.composer_cache_dir }}
 #          key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.json') }}
 #          restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}
-#
-#      - name: Install dependencies
-#        run: composer install --prefer-dist --no-progress --no-suggest
-#
-#      - name: Run GrumPHP
-#        run: php vendor/bin/grumphp run --no-interaction --ansi
-
-  test:
-    needs: setup
-    strategy:
-      matrix:
-        php-version: [8.3] #['8.1', '8.2', '8.3', '8.4']
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: curl, xdebug
-          coverage: xdebug
-          tools: composer
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
-
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ needs.setup.outputs.composer_cache_dir }}
-          key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}
 
       - name: Run PHPUnit with coverage
         run: |
-          mkdir -p public/coverage-html build/logs
+          mkdir -p public/coverage-html
           php vendor/bin/phpunit --testsuite Internal --coverage-html=public/coverage-html --coverage-clover=clover.xml
 
       - name: Upload HTML coverage artifact

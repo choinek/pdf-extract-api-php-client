@@ -4,7 +4,11 @@ namespace Choinek\PdfExtractApiPhpClient\Dto;
 
 final class ListFilesResponseDto implements ResponseDtoInterface
 {
+    /**
+     * @param string[] $files
+     */
     public function __construct(
+        private readonly string $rawResponseBody,
         private readonly array $files,
     ) {
     }
@@ -23,16 +27,30 @@ final class ListFilesResponseDto implements ResponseDtoInterface
             }
         }
 
-        return new self($response['files']);
+        return new self(
+            rawResponseBody: $responseBody,
+            files: $response['files']
+        );
     }
 
+    /**
+     * @return string[]
+     */
     public function getFiles(): array
     {
         return $this->files;
     }
 
+    /**
+     * @return array{files: string[]}
+     */
     public function toArray(): array
     {
         return ['files' => $this->files];
+    }
+
+    public function getRawResponse(): string
+    {
+        return $this->rawResponseBody;
     }
 }

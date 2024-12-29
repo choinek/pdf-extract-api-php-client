@@ -5,6 +5,7 @@ namespace Choinek\PdfExtractApiPhpClient\Dto;
 final class DeleteFileResponseDto implements ResponseDtoInterface
 {
     public function __construct(
+        private readonly string $rawResponseBody,
         private readonly bool $success,
     ) {
     }
@@ -17,7 +18,7 @@ final class DeleteFileResponseDto implements ResponseDtoInterface
             throw new \InvalidArgumentException('Invalid success field in response: '.$responseBody);
         }
 
-        return new self($response['success']);
+        return new self($responseBody, $response['success']);
     }
 
     public function isSuccess(): bool
@@ -28,5 +29,10 @@ final class DeleteFileResponseDto implements ResponseDtoInterface
     public function toArray(): array
     {
         return ['success' => $this->success];
+    }
+
+    public function getRawResponse(): string
+    {
+        return $this->rawResponseBody;
     }
 }

@@ -5,6 +5,7 @@ namespace Choinek\PdfExtractApiPhpClient\Dto;
 final class OcrResponseDto implements ResponseDtoInterface
 {
     public function __construct(
+        private readonly string $rawResponseBody,
         private readonly ?string $taskId = null,
         private readonly ?string $text = null,
     ) {
@@ -25,7 +26,11 @@ final class OcrResponseDto implements ResponseDtoInterface
             throw new \InvalidArgumentException('Invalid text in response: '.$responseBody);
         }
 
-        return new self($taskId, $text);
+        return new self(
+            rawResponseBody: $responseBody,
+            taskId: $taskId,
+            text: $text
+        );
     }
 
     public function getTaskId(): ?string
@@ -44,5 +49,10 @@ final class OcrResponseDto implements ResponseDtoInterface
             'task_id' => $this->taskId,
             'text' => $this->text,
         ];
+    }
+
+    public function getRawResponse(): string
+    {
+        return $this->rawResponseBody;
     }
 }

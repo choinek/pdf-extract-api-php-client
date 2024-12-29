@@ -5,7 +5,9 @@ namespace Choinek\PdfExtractApiPhpClient\Dto;
 final class ClearCacheResponseDto implements ResponseDtoInterface
 {
     public function __construct(
+        private readonly string $rawResponseBody,
         private readonly bool $success,
+        private readonly string $status,
     ) {
     }
 
@@ -13,11 +15,15 @@ final class ClearCacheResponseDto implements ResponseDtoInterface
     {
         $response = json_decode($responseBody, true);
 
-        if (!isset($response['success']) || !is_bool($response['success'])) {
-            throw new \InvalidArgumentException('Invalid success field in response: '.$responseBody);
+        if (!isset($response['status']) || !is_string($response['status'])) {
+            throw new \InvalidArgumentException('Invalid status field in response: '.$responseBody);
         }
 
-        return new self($response['success']);
+        return new self(
+            rawResponseBody: $responseBody,
+            success: 'OCR cache cleared' === $response['status'],
+            status: $response['status']
+        );
     }
 
     public function isSuccess(): bool
@@ -25,8 +31,21 @@ final class ClearCacheResponseDto implements ResponseDtoInterface
         return $this->success;
     }
 
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
     public function toArray(): array
     {
-        return ['success' => $this->success];
+        return [
+            'success' => $this->success,
+            'status' => $this->status,
+        ];
+    }
+
+    public function getRawResponse(): string
+    {
+        return $this->rawResponseBody;
     }
 }

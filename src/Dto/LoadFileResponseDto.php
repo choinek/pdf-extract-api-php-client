@@ -5,6 +5,7 @@ namespace Choinek\PdfExtractApiPhpClient\Dto;
 final class LoadFileResponseDto implements ResponseDtoInterface
 {
     public function __construct(
+        private readonly string $rawResponseBody,
         private readonly string $content,
     ) {
     }
@@ -17,7 +18,10 @@ final class LoadFileResponseDto implements ResponseDtoInterface
             throw new \InvalidArgumentException('Invalid content field in response: '.$responseBody);
         }
 
-        return new self($response['content']);
+        return new self(
+            rawResponseBody: $responseBody,
+            content: $response['content']
+        );
     }
 
     public function getContent(): string
@@ -28,5 +32,10 @@ final class LoadFileResponseDto implements ResponseDtoInterface
     public function toArray(): array
     {
         return ['content' => $this->content];
+    }
+
+    public function getRawResponse(): string
+    {
+        return $this->rawResponseBody;
     }
 }

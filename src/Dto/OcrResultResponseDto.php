@@ -4,7 +4,16 @@ namespace Choinek\PdfExtractApiPhpClient\Dto;
 
 final class OcrResultResponseDto implements ResponseDtoInterface
 {
+    /**
+     * @param array{
+     *     progress: string,          // Progress percentage as a string, e.g., "30"
+     *     status: string,            // Current status message, e.g., "OCR Processing (page 1 of 1) chunk no: 217"
+     *     start_time: float,         // Start time as a floating-point number, e.g., 1735270717.226997
+     *     elapsed_time: float        // Elapsed time as a floating-point number, e.g., 16.150298833847046
+     * } $info
+     */
     public function __construct(
+        private readonly string $rawResponseBody,
         private readonly string $state,
         private readonly ?string $status = null,
         private readonly ?string $result = null,
@@ -24,6 +33,8 @@ final class OcrResultResponseDto implements ResponseDtoInterface
         $result = $response['result'] ?? null;
         $info = $response['info'] ?? null;
 
+        var_dump('Info:', $info);
+
         if (null !== $status && !is_string($status)) {
             throw new \InvalidArgumentException('Invalid "status" in response: '.$responseBody);
         }
@@ -37,10 +48,11 @@ final class OcrResultResponseDto implements ResponseDtoInterface
         }
 
         return new self(
-            $response['state'],
-            $status,
-            $result,
-            $info
+            rawResponseBody: $responseBody,
+            state: $response['state'],
+            status: $status,
+            result: $result,
+            info: $info
         );
     }
 
@@ -91,5 +103,10 @@ final class OcrResultResponseDto implements ResponseDtoInterface
             'result' => $this->result,
             'info' => $this->info,
         ];
+    }
+
+    public function getRawResponse(): string
+    {
+        return $this->rawResponseBody;
     }
 }
