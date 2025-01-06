@@ -11,7 +11,7 @@ class OcrRequestDto
         public readonly string $model,
         public readonly UploadFileDto $file,
         public readonly bool $ocrCache = true,
-        public readonly ?string $prompt = null,
+        public readonly ?string $prompt = 'You are OCR. Convert image to markdown.',
         public readonly ?string $storageProfile = 'default',
         public readonly ?string $storageFilename = null,
     ) {

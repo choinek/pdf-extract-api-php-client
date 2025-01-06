@@ -2,6 +2,7 @@
 
 namespace Choinek\PdfExtractApiClient;
 
+use Choinek\PdfExtractApiClient\Dto\LlmPullResponseDto;
 use Choinek\PdfExtractApiClient\Dto\OcrResultResponseDto;
 use Choinek\PdfExtractApiClient\Dto\ResponseDtoInterface;
 use Choinek\PdfExtractApiClient\Http\CurlWrapper;
@@ -145,15 +146,19 @@ class ApiClient
         return $response;
     }
 
-    public function llmPull(string $model): ClearCacheResponseDto
+    public function llmPull(string $model): LlmPullResponseDto
     {
         $response = $this->request(
             'POST',
             '/llm/pull',
-            ClearCacheResponseDto::class
+            LlmPullResponseDto::class,
+            [
+                'headers' => ['Content-Type' => 'application/json'],
+                'body' => json_encode(['model' => $model], JSON_THROW_ON_ERROR),
+            ]
         );
 
-        if (!$response instanceof ClearCacheResponseDto) {
+        if (!$response instanceof LlmPullResponseDto) {
             throw new \UnexpectedValueException('Expected instance of ClearCacheResponseDto, got '.get_class($response));
         }
 

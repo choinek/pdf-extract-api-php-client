@@ -11,7 +11,7 @@ final class OcrUploadRequestDto
         private readonly string $strategy,
         private readonly string $storageProfile = 'default',
         private readonly ?string $storageFilename = null,
-        private readonly ?string $prompt = null,
+        private readonly ?string $prompt = 'You are OCR. Convert image to markdown.',
     ) {
     }
 

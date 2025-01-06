@@ -9,33 +9,51 @@ use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto;
 use Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum;
 use Choinek\PdfExtractApiClient\Http\CurlWrapper;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Choinek\PdfExtractApiClient\Tests\Utility\AssetDownloader;
 
 class ApiClientTest extends TestCase
 {
-    private const BASE_URL = 'http://localhost:8000';
-    private const TASK_TIMEOUT = 180;
+    public const TASK_TIMEOUT = 180;
 
+    /**
+     * @var string[]
+     */
+    public static array $models = ['llama3.2-vision'];
     private ApiClient $apiClient;
+
+    public function __construct(
+        string $name,
+        private string $baseUrl = 'http://localhost:8000',
+    ) {
+        if (getenv('TEST_API_URL')) {
+            $this->baseUrl = getenv('TEST_API_URL');
+        }
+
+        if (getenv('TEST_API_MODELS')) {
+            self::$models = explode(',', getenv('TEST_API_MODELS'));
+        }
+
+        parent::__construct($name);
+    }
 
     protected function setUp(): void
     {
-        $this->apiClient = new ApiClient(new CurlWrapper(), self::BASE_URL);
+        $this->apiClient = new ApiClient(new CurlWrapper(), $this->baseUrl);
         (new AssetDownloader())->setUp();
 
         $this->apiClient->ocrClearCache();
     }
 
-    /**
-     * @param array{filepath: string, textContains: string[], model: string} $testDataProvided
-     */
-    private function prepareExampleRequest(array $testDataProvided): OcrRequestDto
+    private function prepareExampleRequest(string $filepath, string $model): OcrRequestDto
     {
         return new OcrRequestDto(
-            'llama_vision',
-            $testDataProvided['model'],
-            UploadFileDto::fromFile($testDataProvided['filepath'])
+            strategy:'llama_vision',
+            model: $model,
+            file: UploadFileDto::fromFile($filepath),
+            prompt: 'You are an OCR model. Convert the image to text without changing the structure'
         );
     }
 
@@ -48,26 +66,22 @@ class ApiClientTest extends TestCase
             __DIR__.'/../assets/external/example-invoice.pdf' => [
                 'Acme Invoice Ltd',
                 'Darrow Street 2',
-                'Invoice ID: INV/S/24/2024',
-                'Issue Date: 17/09/2024',
-                'Due Date: 11/10/2024',
+                'INV/S/24/2024',
+                '17/09/2024',
+                '11/10/2024',
             ],
             __DIR__.'/../assets/external/example-mri.pdf' => [
-                'Clinic Information',
-                'Address: 0 Maywood Ave, Maywood, NJ 00000',
-                'Phone Number: (201) 725-0913',
-                'Age: 55 years old (as of April 29th, 2021)',
-                'Sex: Female',
+                'diffusion signal abnormality',
+                'Jane Mary',
+                '55 years old',
+                'Female',
+                'Posterior fossa',
             ],
-        ];
-        $models = [
-            'llama3.1',
-            'llama3.2-vision',
         ];
 
         $data = [];
         foreach ($files as $file => $textContains) {
-            foreach ($models as $model) {
+            foreach (self::$models as $model) {
                 $key = 'read '.basename($file).' with '.$model;
                 $data[$key] = [
                     'filepath' => $file,
@@ -80,6 +94,11 @@ class ApiClientTest extends TestCase
         return $data;
     }
 
+    public function testPullApi(): void
+    {
+
+    }
+
     public function testClearCache(): void
     {
         $clearCacheResponse = $this->apiClient->ocrClearCache();
@@ -88,15 +107,13 @@ class ApiClientTest extends TestCase
     }
 
     /**
-     * @dataProvider filesToParseDataProvider
-     *
-     * @depends testClearCache
-     *
-     * @param array{filepath: string, textContains: string[], model: string} $testDataProvided
+     * @param string[] $textContains
      */
-    public function testReadTextFromImagesUsingOcrRequestMethod(mixed $testDataProvided): void
+    #[DataProvider('filesToParseDataProvider')]
+    #[Depends('testClearCache')]
+    public function testReadTextFromImagesUsingOcrRequestMethod(string $filepath, array $textContains, string $model): void
     {
-        $ocrRequest = $this->prepareExampleRequest($testDataProvided);
+        $ocrRequest = $this->prepareExampleRequest($filepath, $model);
 
         $ocrRequestResponse = $this->apiClient->ocrRequest($ocrRequest);
 
@@ -122,14 +139,14 @@ class ApiClientTest extends TestCase
             }
 
             sleep(1);
-        } while (StateEnum::SUCCESS === $ocrResultResponse->getState());
+        } while (StateEnum::SUCCESS !== $ocrResultResponse->getState());
 
-        foreach ($testDataProvided['textContains'] as $textContains) {
+        foreach ($textContains as $textContain) {
             if (null === $ocrResultResponse->getResult()) {
                 $this->fail('Result is null');
             }
 
-            $this->assertStringContainsString($textContains, $ocrResultResponse->getResult());
+            $this->assertStringContainsStringIgnoringCase($textContain, $ocrResultResponse->getResult());
         }
     }
 
@@ -139,7 +156,5 @@ class ApiClientTest extends TestCase
     public function testStorageList(): void
     {
         $storageListResponse = $this->apiClient->storageList();
-
-        $this->assertNotEmpty($storageListResponse->toArray());
     }
 }

@@ -10,7 +10,7 @@ final class OcrResultResponseDto implements ResponseDtoInterface
     /**
      * @param ?array{progress: string, status: string, start_time: float, elapsed_time: float} $info
      *                                                                                               - `progress`: Progress percentage as a string, e.g., "30".
-     *                                                                                               - `status`: Current status message, e.g., "OCR Processing (page 1 of 1) chunk no: 217".
+     *                                                                                               - `status`: Current status message, e.g., " Processing (page 1 of 1) chunk no: 217".
      *                                                                                               - `start_time`: Start time as a floating-point number, e.g., 1735270717.226997.
      *                                                                                               - `elapsed_time`: Elapsed time as a floating-point number, e.g., 16.150298833847046.
      */
@@ -50,12 +50,13 @@ final class OcrResultResponseDto implements ResponseDtoInterface
         }
 
         if (null !== $info) {
-            if (
-                !is_array($info)
-                || !isset($info['progress']) || !is_string($info['progress'])
-                || !isset($info['status']) || !is_string($info['status'])
-                || !isset($info['start_time']) || !is_numeric($info['start_time'])
-                || !isset($info['elapsed_time']) || !is_numeric($info['elapsed_time'])
+            if (is_array($info)
+                && (
+                    !isset($info['progress']) || !is_numeric($info['progress'])
+                    || !isset($info['status']) || !is_string($info['status'])
+                    || !isset($info['start_time']) || !is_numeric($info['start_time'])
+                    || !isset($info['elapsed_time']) || !is_numeric($info['elapsed_time'])
+                )
             ) {
                 throw new ApiResponseException('Invalid "info" in response.', 422, $responseBody);
             } else {
