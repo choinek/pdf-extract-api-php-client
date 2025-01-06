@@ -24,6 +24,8 @@ tests/_support/_generated/
 # Coverage reports
 /coverage/
 /phpunit-coverage/
+clover.xml
+/public/coverage-html/
 
 # PHPMD, PHPStan, PHP-CS-Fixer, and other tools
 /.php_cs.cache
@@ -58,3 +60,4 @@ docker-compose.test.yml
 Dockerfile
 Makefile
 php-library-test-docker-output/
+
