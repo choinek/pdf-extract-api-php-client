@@ -2,7 +2,7 @@
 
 namespace Choinek\PdfExtractApiClient\Dto;
 
-final class ClearCacheResponseDto implements ResponseDtoInterface
+final class LlmPullResponseDto implements ResponseDtoInterface
 {
     public function __construct(
         private readonly string $rawResponseBody,
@@ -10,7 +10,7 @@ final class ClearCacheResponseDto implements ResponseDtoInterface
     ) {
     }
 
-    public static function fromResponse(string $responseBody): ClearCacheResponseDto
+    public static function fromResponse(string $responseBody): LlmPullResponseDto
     {
         $response = json_decode($responseBody, true);
 
@@ -26,7 +26,7 @@ final class ClearCacheResponseDto implements ResponseDtoInterface
 
     public function isSuccess(): bool
     {
-        return 'OCR cache cleared' === $this->getStatus();
+        return 'Model pulled successfully' === $this->getStatus();
     }
 
     public function getStatus(): string

@@ -27,7 +27,7 @@ class ApiClient
      * @param class-string<ResponseDtoInterface> $responseDtoClass
      * @param array{
      *     headers?: array<string, string>,
-     *     body?: string|array<string, string>|null
+     *     body?: array<string, string|\CURLFile>|string|null
      * } $options
      */
     protected function request(string $method, string $endpoint, string $responseDtoClass, array $options = []): ResponseDtoInterface
@@ -135,6 +135,21 @@ class ApiClient
         $response = $this->request(
             'POST',
             '/ocr/clear_cache',
+            ClearCacheResponseDto::class
+        );
+
+        if (!$response instanceof ClearCacheResponseDto) {
+            throw new \UnexpectedValueException('Expected instance of ClearCacheResponseDto, got '.get_class($response));
+        }
+
+        return $response;
+    }
+
+    public function llmPull(string $model): ClearCacheResponseDto
+    {
+        $response = $this->request(
+            'POST',
+            '/llm/pull',
             ClearCacheResponseDto::class
         );
 

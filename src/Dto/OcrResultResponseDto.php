@@ -3,6 +3,7 @@
 namespace Choinek\PdfExtractApiClient\Dto;
 
 use Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum;
+use Choinek\PdfExtractApiClient\Exception\ApiResponseException;
 
 final class OcrResultResponseDto implements ResponseDtoInterface
 {
@@ -25,10 +26,13 @@ final class OcrResultResponseDto implements ResponseDtoInterface
     public static function fromResponse(string $responseBody): self
     {
         $response = json_decode($responseBody, true);
+        if (!$response) {
+            throw new ApiResponseException('Invalid response.', 422, $responseBody);
+        }
 
         $state = StateEnum::tryFrom($response['state']);
         if (null === $state) {
-            throw new \InvalidArgumentException('Invalid state value: '.$response['state']);
+            throw new ApiResponseException('Invalid "state" in response.', 422, $responseBody);
         }
 
         $status = $response['status'] ?? null;
@@ -36,38 +40,33 @@ final class OcrResultResponseDto implements ResponseDtoInterface
         $info = $response['info'] ?? null;
 
         if (null !== $status && !is_string($status)) {
-            throw new \InvalidArgumentException('Invalid "status" in response: '.$responseBody);
+            throw new ApiResponseException('Invalid "status" in response.', 422, $responseBody);
+
         }
 
         if (null !== $result && !is_string($result)) {
-            throw new \InvalidArgumentException('Invalid "result" in response: '.$responseBody);
+            throw new ApiResponseException('Invalid "result" in response.', 422, $responseBody);
+
         }
 
-        if (null !== $info && !is_array($info)) {
-            throw new \InvalidArgumentException('Invalid "info" in response: '.$responseBody);
+        if (null !== $info) {
+            if (
+                !is_array($info)
+                || !isset($info['progress']) || !is_string($info['progress'])
+                || !isset($info['status']) || !is_string($info['status'])
+                || !isset($info['start_time']) || !is_numeric($info['start_time'])
+                || !isset($info['elapsed_time']) || !is_numeric($info['elapsed_time'])
+            ) {
+                throw new ApiResponseException('Invalid "info" in response.', 422, $responseBody);
+            } else {
+                $info['start_time'] = (float) $info['start_time'];
+                $info['elapsed_time'] = (float) $info['elapsed_time'];
+            }
         }
-
-        if (!isset($info['progress']) || !is_string($info['progress'])) {
-            throw new \InvalidArgumentException('Invalid "progress" in response: '.$responseBody);
-        }
-
-        if (!isset($info['status']) || !is_string($info['status'])) {
-            throw new \InvalidArgumentException('Invalid "status" in response: '.$responseBody);
-        }
-
-        if (!isset($info['start_time']) || !is_numeric($info['start_time'])) {
-            throw new \InvalidArgumentException('Invalid "start_time" in response: '.$responseBody);
-        }
-        $info['start_time'] = (float) $info['start_time'];
-
-        if (!isset($info['elapsed_time']) || !is_numeric($info['elapsed_time'])) {
-            throw new \InvalidArgumentException('Invalid "start_time" in response: '.$responseBody);
-        }
-        $info['elapsed_time'] = (float) $info['elapsed_time'];
 
         return new self(
             rawResponseBody: $responseBody,
-            state: $response['state'],
+            state: $state,
             status: $status,
             result: $result,
             info: $info

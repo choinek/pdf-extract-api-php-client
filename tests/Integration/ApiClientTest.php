@@ -198,7 +198,7 @@ class ApiClientTest extends TestCase
         $this->assertEquals('Task is pending...', $response->getStatus(), 'The status for PENDING state is incorrect.');
     }
 
-    public function testGetResultprogressState(): void
+    public function testGetResultProgressState(): void
     {
         $client = new ApiClient(
             new CurlWrapper(),
@@ -209,8 +209,9 @@ class ApiClientTest extends TestCase
 
         $this->assertEquals('progress', $response->getState(), 'The state of the task is not progress.');
         $this->assertEquals('Processing task...', $response->getStatus(), 'The status for progress state is incorrect.');
-        $this->assertArrayHasKey('info', $response->toArray(), 'The "info" key is missing in the progress response.');
-        $this->assertArrayHasKey('elapsed_time', $response->toArray()['info'], 'The "elapsed_time" key is missing in the progress info.');
+        $responseArrayInfo = $response->getInfo();
+        $this->assertIsArray($responseArrayInfo, 'The "info" is missing in the progress response.');
+        $this->assertArrayHasKey('elapsed_time', $responseArrayInfo, 'The "elapsed_time" key is missing in the progress info.');
     }
 
     public function testGetResultsuccessState(): void
