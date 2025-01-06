@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Functional\Choinek\PdfExtractApiPhpClient;
+namespace Choinek\PdfExtractApiClient\Tests\Functional;
 
 use Choinek\PdfExtractApiClient\ApiClient;
 use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto;
+use Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum;
 use Choinek\PdfExtractApiClient\Http\CurlWrapper;
 use PHPUnit\Framework\TestCase;
 use Choinek\PdfExtractApiClient\Tests\Utility\AssetDownloader;
@@ -69,11 +70,9 @@ class ApiClientTest extends TestCase
             foreach ($models as $model) {
                 $key = 'read '.basename($file).' with '.$model;
                 $data[$key] = [
-                    [
-                        'filepath' => $file,
-                        'textContains' => $textContains,
-                        'model' => $model,
-                    ],
+                    'filepath' => $file,
+                    'textContains' => $textContains,
+                    'model' => $model,
                 ];
             }
         }
@@ -90,7 +89,9 @@ class ApiClientTest extends TestCase
 
     /**
      * @dataProvider filesToParseDataProvider
+     *
      * @depends testClearCache
+     *
      * @param array{filepath: string, textContains: string[], model: string} $testDataProvided
      */
     public function testReadTextFromImagesUsingOcrRequestMethod(mixed $testDataProvided): void
@@ -110,16 +111,24 @@ class ApiClientTest extends TestCase
                 $this->fail('OCR task exceeds '.self::TASK_TIMEOUT.'s ( '.round($timeElapsed, 4).'s). Task id: '.$taskId);
             }
 
+            if (!$ocrRequestResponse->getTaskId()) {
+                $this->fail('Task ID is not set');
+            }
+
             $ocrResultResponse = $this->apiClient->ocrResultGetByTaskId($ocrRequestResponse->getTaskId());
 
-            if ('failure' === $ocrResultResponse->getState()) {
+            if (StateEnum::FAILURE === $ocrResultResponse->getState()) {
                 $this->fail('OCR failed: '.$ocrResultResponse->getStatus());
             }
 
             sleep(1);
-        } while ('success' != $ocrResultResponse->getState());
+        } while (StateEnum::SUCCESS === $ocrResultResponse->getState());
 
         foreach ($testDataProvided['textContains'] as $textContains) {
+            if (null === $ocrResultResponse->getResult()) {
+                $this->fail('Result is null');
+            }
+
             $this->assertStringContainsString($textContains, $ocrResultResponse->getResult());
         }
     }

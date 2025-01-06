@@ -34,6 +34,7 @@ class ApiClient
     {
         $url = rtrim($this->baseUrl, '/').$endpoint;
         $curlWrapper = $this->curlWrapper->init($url);
+        $requestInfo = json_encode(['url' => $url, 'method' => $method, 'options' => $options]);
 
         $curlWrapper->setopt(CURLOPT_CUSTOMREQUEST, strtoupper($method));
         $curlWrapper->setopt(CURLOPT_RETURNTRANSFER, true);
@@ -58,19 +59,19 @@ class ApiClient
         $responseBody = $curlWrapper->exec();
 
         if (!is_string($responseBody)) {
-            throw new \RuntimeException('Error: '.$curlWrapper->error());
+            throw new \RuntimeException('Error: '.$curlWrapper->error()."\n. Request info: ".var_export($requestInfo, true));
         }
 
         $statusCode = $curlWrapper->getinfo(CURLINFO_HTTP_CODE);
         if (is_numeric($statusCode)) {
             $statusCode = (int) $statusCode;
         } else {
-            throw new \RuntimeException('HTTP Invalid status code');
+            throw new \RuntimeException("HTTP Invalid status code \n. Request info: ".var_export($requestInfo, true));
         }
         $curlWrapper->close();
 
         if ($statusCode >= 400) {
-            throw new \RuntimeException(sprintf('%s HTTP error %s: %s', __METHOD__, $statusCode, $responseBody), $statusCode);
+            throw new \RuntimeException(sprintf('%s HTTP status code > 400 %s: %s. Request info: %s', __METHOD__, $statusCode, $responseBody, var_export($requestInfo, true)));
         }
 
         return $responseDtoClass::fromResponse($responseBody);

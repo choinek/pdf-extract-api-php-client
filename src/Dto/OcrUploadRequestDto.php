@@ -18,7 +18,7 @@ final class OcrUploadRequestDto
     /**
      * Convert the DTO into a multipart form-data array.
      *
-     * @return array The multipart form-data representation
+     * @return array<string, string|\CURLFile> The multipart form-data representation
      */
     public function toMultipartFormData(): array
     {

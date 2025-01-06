@@ -25,6 +25,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "Choinek\\PdfExtractApiClient\\Tests\\Functional\\": "tests/Functional",
             "Choinek\\PdfExtractApiClient\\Tests\\Integration\\": "tests/Integration",
             "Choinek\\PdfExtractApiClient\\Tests\\Unit\\": "tests/Unit",
             "Choinek\\PdfExtractApiClient\\Tests\\Utility\\": "tests/Utility"
