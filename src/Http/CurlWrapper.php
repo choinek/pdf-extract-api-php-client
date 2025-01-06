@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Choinek\PdfExtractApiClient\Http;
 
+use Choinek\PdfExtractApiClient\Exception\ApiClientException;
+
 /**
  * This class is a wrapper around the cURL functions.
  * It is used to make the code testable.
@@ -18,7 +20,7 @@ class CurlWrapper
         if ($url) {
             $curlHandle = curl_init($url);
             if (false === $curlHandle) {
-                throw new \RuntimeException('Failed to initialize cURL session.');
+                throw new ApiClientException('Failed to initialize cURL session.');
             }
             $this->curlHandle = $curlHandle;
         }
@@ -66,7 +68,7 @@ class CurlWrapper
     private function checkHandle(): void
     {
         if (!isset($this->curlHandle)) {
-            throw new \RuntimeException('CurlWrapper was not initialized with a URL. CurlWrapper::init() must be called first.');
+            throw new ApiClientException('CurlWrapper was not initialized with a URL. CurlWrapper::init() must be called first.');
         }
     }
 }

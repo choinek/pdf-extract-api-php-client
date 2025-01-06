@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Choinek\PdfExtractApiClient\ApiClient;
 use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto;
-use Choinek\PdfExtractApiClient\Http\CurlWrapper;
 
 class ApiClientTest extends TestCase
 {
@@ -121,8 +120,7 @@ class ApiClientTest extends TestCase
     public function testRequestOcr(): void
     {
         $client = new ApiClient(
-            new CurlWrapper(),
-            sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
+            sprintf('http://%s:%d', self::$serverHost, self::$serverPort),
         );
 
         $uploadFileDto = new UploadFileDto('sample.jpg', 'image/jpeg', __DIR__.'/../assets/sample.jpg');
@@ -140,7 +138,6 @@ class ApiClientTest extends TestCase
     public function testClearCache(): void
     {
         $client = new ApiClient(
-            new CurlWrapper(),
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
@@ -152,7 +149,6 @@ class ApiClientTest extends TestCase
     public function testListFiles(): void
     {
         $client = new ApiClient(
-            new CurlWrapper(),
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
@@ -164,7 +160,6 @@ class ApiClientTest extends TestCase
     public function testLoadFile(): void
     {
         $client = new ApiClient(
-            new CurlWrapper(),
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
@@ -176,7 +171,6 @@ class ApiClientTest extends TestCase
     public function testDeleteFile(): void
     {
         $client = new ApiClient(
-            new CurlWrapper(),
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
@@ -188,7 +182,6 @@ class ApiClientTest extends TestCase
     public function testGetResultPendingState(): void
     {
         $client = new ApiClient(
-            new CurlWrapper(),
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
@@ -201,7 +194,6 @@ class ApiClientTest extends TestCase
     public function testGetResultProgressState(): void
     {
         $client = new ApiClient(
-            new CurlWrapper(),
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
@@ -217,7 +209,6 @@ class ApiClientTest extends TestCase
     public function testGetResultsuccessState(): void
     {
         $client = new ApiClient(
-            new CurlWrapper(),
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 
@@ -230,7 +221,6 @@ class ApiClientTest extends TestCase
     public function testGetResultFailureState(): void
     {
         $client = new ApiClient(
-            new CurlWrapper(),
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
         );
 

@@ -8,7 +8,6 @@ use Choinek\PdfExtractApiClient\ApiClient;
 use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto;
 use Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum;
-use Choinek\PdfExtractApiClient\Http\CurlWrapper;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
@@ -41,7 +40,7 @@ class ApiClientTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->apiClient = new ApiClient(new CurlWrapper(), $this->baseUrl);
+        $this->apiClient = new ApiClient($this->baseUrl);
         (new AssetDownloader())->setUp();
 
         $this->apiClient->ocrClearCache();
@@ -53,7 +52,7 @@ class ApiClientTest extends TestCase
             strategy:'llama_vision',
             model: $model,
             file: UploadFileDto::fromFile($filepath),
-            prompt: 'You are an OCR model. Convert the image to text without changing the structure'
+            prompt: 'You are OCR. Convert image to markdown.'
         );
     }
 

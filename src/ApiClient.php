@@ -5,22 +5,24 @@ namespace Choinek\PdfExtractApiClient;
 use Choinek\PdfExtractApiClient\Dto\LlmPullResponseDto;
 use Choinek\PdfExtractApiClient\Dto\OcrResultResponseDto;
 use Choinek\PdfExtractApiClient\Dto\ResponseDtoInterface;
+use Choinek\PdfExtractApiClient\Exception\ApiClientException;
+use Choinek\PdfExtractApiClient\Exception\ApiResponseException;
 use Choinek\PdfExtractApiClient\Http\CurlWrapper;
 use Choinek\PdfExtractApiClient\Dto\OcrUploadRequestDto;
 use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiClient\Dto\OcrResponseDto;
 use Choinek\PdfExtractApiClient\Dto\ClearCacheResponseDto;
-use Choinek\PdfExtractApiClient\Dto\ListFilesResponseDto;
+use Choinek\PdfExtractApiClient\Dto\StorageListDto;
 use Choinek\PdfExtractApiClient\Dto\LoadFileResponseDto;
 use Choinek\PdfExtractApiClient\Dto\DeleteFileResponseDto;
 
 class ApiClient
 {
     public function __construct(
-        private readonly CurlWrapper $curlWrapper,
         private readonly string $baseUrl,
         private readonly ?string $username = null,
         private readonly ?string $password = null,
+        private readonly CurlWrapper $curlWrapper = new CurlWrapper(),
     ) {
     }
 
@@ -60,19 +62,19 @@ class ApiClient
         $responseBody = $curlWrapper->exec();
 
         if (!is_string($responseBody)) {
-            throw new \RuntimeException('Error: '.$curlWrapper->error()."\n. Request info: ".var_export($requestInfo, true));
+            throw new ApiClientException('Error: '.$curlWrapper->error()."\n. Request info: ".var_export($requestInfo, true));
         }
 
         $statusCode = $curlWrapper->getinfo(CURLINFO_HTTP_CODE);
         if (is_numeric($statusCode)) {
             $statusCode = (int) $statusCode;
         } else {
-            throw new \RuntimeException("HTTP Invalid status code \n. Request info: ".var_export($requestInfo, true));
+            throw new ApiResponseException("HTTP Invalid status code \n. Request info: ".var_export($requestInfo, true), 0, $responseBody);
         }
         $curlWrapper->close();
 
         if ($statusCode >= 400) {
-            throw new \RuntimeException(sprintf('%s HTTP status code > 400 %s: %s. Request info: %s', __METHOD__, $statusCode, $responseBody, var_export($requestInfo, true)));
+            throw new ApiResponseException(sprintf('%s HTTP status code > 400 %s: %s. Request info: %s', __METHOD__, $statusCode, $responseBody, var_export($requestInfo, true)), $statusCode, $responseBody);
         }
 
         return $responseDtoClass::fromResponse($responseBody);
@@ -165,19 +167,19 @@ class ApiClient
         return $response;
     }
 
-    public function storageList(string $storageProfile = 'default'): ListFilesResponseDto
+    public function storageList(string $storageProfile = 'default'): StorageListDto
     {
         $response = $this->request(
             'GET',
             '/storage/list',
-            ListFilesResponseDto::class,
+            StorageListDto::class,
             [
                 'headers' => ['Content-Type' => 'application/json'],
                 'body' => json_encode(['storage_profile' => $storageProfile], JSON_THROW_ON_ERROR),
             ]
         );
 
-        if (!$response instanceof ListFilesResponseDto) {
+        if (!$response instanceof StorageListDto) {
             throw new \UnexpectedValueException('Expected instance of ListFilesResponseDto, got '.get_class($response));
         }
 

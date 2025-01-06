@@ -12,7 +12,7 @@ use Choinek\PdfExtractApiClient\Http\CurlWrapper;
 use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiClient\Dto\OcrResponseDto;
 use Choinek\PdfExtractApiClient\Dto\ClearCacheResponseDto;
-use Choinek\PdfExtractApiClient\Dto\ListFilesResponseDto;
+use Choinek\PdfExtractApiClient\Dto\StorageListDto;
 use Choinek\PdfExtractApiClient\Dto\LoadFileResponseDto;
 
 class ApiClientTest extends TestCase
@@ -25,7 +25,7 @@ class ApiClientTest extends TestCase
     {
         $this->curlWrapper = $this->createMock(CurlWrapper::class);
         $this->curlWrapper->method('init')->willReturn($this->curlWrapper);
-        $this->apiClient = new ApiClient($this->curlWrapper, self::HTTPS_MOCK_LOCALHOST);
+        $this->apiClient = new ApiClient(self::HTTPS_MOCK_LOCALHOST, null, null, $this->curlWrapper);
     }
 
     public function testRequestOcr(): void
@@ -93,7 +93,7 @@ class ApiClientTest extends TestCase
 
         $response = $this->apiClient->storageList();
 
-        $this->assertInstanceOf(ListFilesResponseDto::class, $response);
+        $this->assertInstanceOf(StorageListDto::class, $response);
         $this->assertSame(['file1.pdf', 'file2.pdf'], $response->getFiles());
     }
 
