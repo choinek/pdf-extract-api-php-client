@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Utility\Choinek\PdfExtractApiPhpClient;
+namespace Choinek\PdfExtractApiClient\Tests\Utility;
 
 /**
  * Download examples from external repositories.

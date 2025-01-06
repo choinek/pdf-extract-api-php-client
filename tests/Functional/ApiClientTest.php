@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Functional\Choinek\PdfExtractApiPhpClient;
 
-use Choinek\PdfExtractApiPhpClient\ApiClient;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrRequest\UploadFileDto;
-use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
+use Choinek\PdfExtractApiClient\ApiClient;
+use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
+use Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto;
+use Choinek\PdfExtractApiClient\Http\CurlWrapper;
 use PHPUnit\Framework\TestCase;
-use Tests\Utility\Choinek\PdfExtractApiPhpClient\AssetDownloader;
+use Choinek\PdfExtractApiClient\Tests\Utility\AssetDownloader;
 
 class ApiClientTest extends TestCase
 {

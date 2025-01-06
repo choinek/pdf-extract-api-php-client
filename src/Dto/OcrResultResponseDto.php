@@ -1,6 +1,6 @@
 <?php
 
-namespace Choinek\PdfExtractApiPhpClient\Dto;
+namespace Choinek\PdfExtractApiClient\Dto;
 
 final class OcrResultResponseDto implements ResponseDtoInterface
 {
@@ -32,8 +32,6 @@ final class OcrResultResponseDto implements ResponseDtoInterface
         $status = $response['status'] ?? null;
         $result = $response['result'] ?? null;
         $info = $response['info'] ?? null;
-
-        var_dump('Info:', $info);
 
         if (null !== $status && !is_string($status)) {
             throw new \InvalidArgumentException('Invalid "status" in response: '.$responseBody);

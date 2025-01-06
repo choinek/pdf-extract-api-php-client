@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Unit\Choinek\PdfExtractApiPhpClient\Dto;
+namespace Choinek\PdfExtractApiClient\Tests\Unit\Dto;
 
 use PHPUnit\Framework\TestCase;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrRequest\UploadFileDto;
+use Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto;
 
 class UploadFileDtoTest extends TestCase
 {

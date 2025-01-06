@@ -1,6 +1,6 @@
 <?php
 
-namespace Choinek\PdfExtractApiPhpClient\Dto;
+namespace Choinek\PdfExtractApiClient\Dto;
 
 final class DeleteFileResponseDto implements ResponseDtoInterface
 {

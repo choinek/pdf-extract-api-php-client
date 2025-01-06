@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Choinek\PdfExtractApiPhpClient\Http;
+namespace Choinek\PdfExtractApiClient\Http;
 
 /**
  * This class is a wrapper around the cURL functions.

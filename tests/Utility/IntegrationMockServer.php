@@ -1,5 +1,7 @@
 <?php
 
+namespace Choinek\PdfExtractApiClient\Tests\Utility;
+
 class IntegrationMockServer
 {
     public function __construct(

@@ -1,17 +1,17 @@
 <?php
 
-namespace Choinek\PdfExtractApiPhpClient;
+namespace Choinek\PdfExtractApiClient;
 
-use Choinek\PdfExtractApiPhpClient\Dto\OcrResultResponseDto;
-use Choinek\PdfExtractApiPhpClient\Dto\ResponseDtoInterface;
-use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrUploadRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrResponseDto;
-use Choinek\PdfExtractApiPhpClient\Dto\ClearCacheResponseDto;
-use Choinek\PdfExtractApiPhpClient\Dto\ListFilesResponseDto;
-use Choinek\PdfExtractApiPhpClient\Dto\LoadFileResponseDto;
-use Choinek\PdfExtractApiPhpClient\Dto\DeleteFileResponseDto;
+use Choinek\PdfExtractApiClient\Dto\OcrResultResponseDto;
+use Choinek\PdfExtractApiClient\Dto\ResponseDtoInterface;
+use Choinek\PdfExtractApiClient\Http\CurlWrapper;
+use Choinek\PdfExtractApiClient\Dto\OcrUploadRequestDto;
+use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
+use Choinek\PdfExtractApiClient\Dto\OcrResponseDto;
+use Choinek\PdfExtractApiClient\Dto\ClearCacheResponseDto;
+use Choinek\PdfExtractApiClient\Dto\ListFilesResponseDto;
+use Choinek\PdfExtractApiClient\Dto\LoadFileResponseDto;
+use Choinek\PdfExtractApiClient\Dto\DeleteFileResponseDto;
 
 class ApiClient
 {

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration\Choinek\PdfExtractApiPhpClient;
+namespace Choinek\PdfExtractApiClient\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Choinek\PdfExtractApiPhpClient\ApiClient;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrRequest\UploadFileDto;
-use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
+use Choinek\PdfExtractApiClient\ApiClient;
+use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
+use Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto;
+use Choinek\PdfExtractApiClient\Http\CurlWrapper;
 
 class ApiClientTest extends TestCase
 {

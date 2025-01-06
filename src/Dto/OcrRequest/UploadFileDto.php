@@ -1,6 +1,6 @@
 <?php
 
-namespace Choinek\PdfExtractApiPhpClient\Dto\OcrRequest;
+namespace Choinek\PdfExtractApiClient\Dto\OcrRequest;
 
 class UploadFileDto
 {

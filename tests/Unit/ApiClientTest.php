@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Choinek\PdfExtractApiPhpClient;
+namespace Choinek\PdfExtractApiClient\Tests\Unit;
 
-use Choinek\PdfExtractApiPhpClient\Dto\OcrRequest\UploadFileDto;
+use Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use Choinek\PdfExtractApiPhpClient\ApiClient;
-use Choinek\PdfExtractApiPhpClient\Http\CurlWrapper;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrRequestDto;
-use Choinek\PdfExtractApiPhpClient\Dto\OcrResponseDto;
-use Choinek\PdfExtractApiPhpClient\Dto\ClearCacheResponseDto;
-use Choinek\PdfExtractApiPhpClient\Dto\ListFilesResponseDto;
-use Choinek\PdfExtractApiPhpClient\Dto\LoadFileResponseDto;
+use Choinek\PdfExtractApiClient\ApiClient;
+use Choinek\PdfExtractApiClient\Http\CurlWrapper;
+use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
+use Choinek\PdfExtractApiClient\Dto\OcrResponseDto;
+use Choinek\PdfExtractApiClient\Dto\ClearCacheResponseDto;
+use Choinek\PdfExtractApiClient\Dto\ListFilesResponseDto;
+use Choinek\PdfExtractApiClient\Dto\LoadFileResponseDto;
 
 class ApiClientTest extends TestCase
 {

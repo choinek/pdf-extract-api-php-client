@@ -1,10 +1,11 @@
 {
-    "name": "choinek/pdf-extract-api-php-client",
+    "name": "choinek/pdf-extract-api-client",
     "description": "PHP Client for PDF Extract API - https://github.com/CatchTheTornado/pdf-extract-api",
     "type": "library",
     "require": {
         "php": ">=8.1",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-fileinfo": "*"
     },
     "prefer-stable": true,
     "require-dev": {
@@ -19,14 +20,14 @@
     },
     "autoload": {
         "psr-4": {
-            "Choinek\\PdfExtractApiPhpClient\\": "src/"
+            "Choinek\\PdfExtractApiClient\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\Integration\\Choinek\\PdfExtractApiPhpClient\\": "tests/Integration",
-            "Tests\\Unit\\Choinek\\PdfExtractApiPhpClient\\": "tests/Unit",
-            "Tests\\Utility\\Choinek\\PdfExtractApiPhpClient\\": "tests/Utility"
+            "Choinek\\PdfExtractApiClient\\Tests\\Integration\\": "tests/Integration",
+            "Choinek\\PdfExtractApiClient\\Tests\\Unit\\": "tests/Unit",
+            "Choinek\\PdfExtractApiClient\\Tests\\Utility\\": "tests/Utility"
         }
     },
     "license": "GPL-3.0-or-later",
