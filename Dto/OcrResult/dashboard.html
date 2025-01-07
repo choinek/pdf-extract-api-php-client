@@ -2,7 +2,7 @@
 <html lang="en">
  <head>
   <meta charset="UTF-8">
-  <title>Dashboard for /home/runner/work/pdf-extract-api-php-client/pdf-extract-api-php-client/src/Dto/OcrRequest</title>
+  <title>Dashboard for /home/runner/work/pdf-extract-api-php-client/pdf-extract-api-php-client/src/Dto/OcrResult</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="../../_css/bootstrap.min.css?v=10.1.16" rel="stylesheet" type="text/css">
   <link href="../../_css/nv.d3.min.css?v=10.1.16" rel="stylesheet" type="text/css">
@@ -18,7 +18,7 @@
        <ol class="breadcrumb">
          <li class="breadcrumb-item"><a href="../../index.html">/home/runner/work/pdf-extract-api-php-client/pdf-extract-api-php-client/src</a></li>
          <li class="breadcrumb-item"><a href="../index.html">Dto</a></li>
-         <li class="breadcrumb-item"><a href="index.html">OcrRequest</a></li>
+         <li class="breadcrumb-item"><a href="index.html">OcrResult</a></li>
          <li class="breadcrumb-item active">(Dashboard)</li>
 
        </ol>
@@ -59,7 +59,7 @@
         </tr>
        </thead>
        <tbody>
-       <tr><td><a href="UploadFileDto.php.html#5">Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto</a></td><td class="text-right">87%</td></tr>
+       <tr><td><a href="StateEnum.php.html#5">Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum</a></td><td class="text-right">0%</td></tr>
 
        </tbody>
       </table>
@@ -76,7 +76,7 @@
         </tr>
        </thead>
        <tbody>
-       <tr><td><a href="UploadFileDto.php.html#5">Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto</a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="StateEnum.php.html#5">Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum</a></td><td class="text-right">110</td></tr>
 
        </tbody>
       </table>
@@ -114,8 +114,13 @@
         </tr>
        </thead>
        <tbody>
-       <tr><td><a href="UploadFileDto.php.html#52"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto::getBinaryFileContent">getBinaryFileContent</abbr></a></td><td class="text-right">0%</td></tr>
-       <tr><td><a href="UploadFileDto.php.html#62"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto::resolveMimeType">resolveMimeType</abbr></a></td><td class="text-right">75%</td></tr>
+       <tr><td><a href="StateEnum.php.html#13"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum::isSuccess">isSuccess</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StateEnum.php.html#18"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum::isFailure">isFailure</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StateEnum.php.html#23"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum::isPending">isPending</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StateEnum.php.html#28"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum::isProgress">isProgress</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StateEnum.php.html#33"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum::isDone">isDone</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StateEnum.php.html#38"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum::isFinished">isFinished</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StateEnum.php.html#43"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum::isProcessing">isProcessing</abbr></a></td><td class="text-right">0%</td></tr>
 
        </tbody>
       </table>
@@ -132,7 +137,8 @@
         </tr>
        </thead>
        <tbody>
-       <tr><td><a href="UploadFileDto.php.html#62"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto::resolveMimeType">resolveMimeType</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="StateEnum.php.html#38"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum::isFinished">isFinished</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="StateEnum.php.html#43"><abbr title="Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum::isProcessing">isProcessing</abbr></a></td><td class="text-right">6</td></tr>
 
        </tbody>
       </table>
@@ -161,7 +167,7 @@ $(document).ready(function() {
       .yAxis.tickFormat(d3.format('d'));
 
     d3.select('#classCoverageDistribution svg')
-      .datum(getCoverageDistributionData([0,0,0,0,0,0,0,0,0,1,0,0], "Class Coverage"))
+      .datum(getCoverageDistributionData([1,0,0,0,0,0,0,0,0,0,0,0], "Class Coverage"))
       .transition().duration(500).call(chart);
 
     nv.utils.windowResize(chart.update);
@@ -179,7 +185,7 @@ $(document).ready(function() {
       .yAxis.tickFormat(d3.format('d'));
 
     d3.select('#methodCoverageDistribution svg')
-      .datum(getCoverageDistributionData([1,0,0,0,0,0,0,0,1,0,1,3], "Method Coverage"))
+      .datum(getCoverageDistributionData([7,0,0,0,0,0,0,0,0,0,0,0], "Method Coverage"))
       .transition().duration(500).call(chart);
 
     nv.utils.windowResize(chart.update);
@@ -229,7 +235,7 @@ $(document).ready(function() {
     chart.yAxis.axisLabel('Cyclomatic Complexity');
 
     d3.select('#classComplexity svg')
-      .datum(getComplexityData([[87.09677419354838,12,"<a href=\"UploadFileDto.php.html#5\">Choinek\\PdfExtractApiClient\\Dto\\OcrRequest\\UploadFileDto<\/a>"]], 'Class Complexity'))
+      .datum(getComplexityData([[0,10,"<a href=\"StateEnum.php.html#5\">Choinek\\PdfExtractApiClient\\Dto\\OcrResult\\StateEnum<\/a>"]], 'Class Complexity'))
       .transition()
       .duration(500)
       .call(chart);
@@ -253,7 +259,7 @@ $(document).ready(function() {
     chart.yAxis.axisLabel('Method Complexity');
 
     d3.select('#methodComplexity svg')
-      .datum(getComplexityData([[100,3,"<a href=\"UploadFileDto.php.html#7\">Choinek\\PdfExtractApiClient\\Dto\\OcrRequest\\UploadFileDto::__construct<\/a>"],[91.66666666666666,3,"<a href=\"UploadFileDto.php.html#21\">Choinek\\PdfExtractApiClient\\Dto\\OcrRequest\\UploadFileDto::fromFile<\/a>"],[100,1,"<a href=\"UploadFileDto.php.html#43\">Choinek\\PdfExtractApiClient\\Dto\\OcrRequest\\UploadFileDto::fromBase64<\/a>"],[0,1,"<a href=\"UploadFileDto.php.html#52\">Choinek\\PdfExtractApiClient\\Dto\\OcrRequest\\UploadFileDto::getBinaryFileContent<\/a>"],[100,1,"<a href=\"UploadFileDto.php.html#57\">Choinek\\PdfExtractApiClient\\Dto\\OcrRequest\\UploadFileDto::getBase64EncodedContent<\/a>"],[75,3,"<a href=\"UploadFileDto.php.html#62\">Choinek\\PdfExtractApiClient\\Dto\\OcrRequest\\UploadFileDto::resolveMimeType<\/a>"]], 'Method Complexity'))
+      .datum(getComplexityData([[0,1,"<a href=\"StateEnum.php.html#13\">Choinek\\PdfExtractApiClient\\Dto\\OcrResult\\StateEnum::isSuccess<\/a>"],[0,1,"<a href=\"StateEnum.php.html#18\">Choinek\\PdfExtractApiClient\\Dto\\OcrResult\\StateEnum::isFailure<\/a>"],[0,1,"<a href=\"StateEnum.php.html#23\">Choinek\\PdfExtractApiClient\\Dto\\OcrResult\\StateEnum::isPending<\/a>"],[0,1,"<a href=\"StateEnum.php.html#28\">Choinek\\PdfExtractApiClient\\Dto\\OcrResult\\StateEnum::isProgress<\/a>"],[0,1,"<a href=\"StateEnum.php.html#33\">Choinek\\PdfExtractApiClient\\Dto\\OcrResult\\StateEnum::isDone<\/a>"],[0,3,"<a href=\"StateEnum.php.html#38\">Choinek\\PdfExtractApiClient\\Dto\\OcrResult\\StateEnum::isFinished<\/a>"],[0,2,"<a href=\"StateEnum.php.html#43\">Choinek\\PdfExtractApiClient\\Dto\\OcrResult\\StateEnum::isProcessing<\/a>"]], 'Method Complexity'))
       .transition()
       .duration(500)
       .call(chart);
