@@ -7,22 +7,13 @@ class UploadFileDto
     public function __construct(
         public readonly string $fileName,
         public readonly string $mimeType,
-        private readonly ?string $filePath = null,
-        private readonly ?string $base64Content = null,
+        private readonly string $base64Content,
     ) {
-        if (!$filePath && !$base64Content) {
-            throw new \InvalidArgumentException('Either filePath or base64Content must be provided.');
+        if (!$base64Content) {
+            throw new \InvalidArgumentException('Base64 content must be provided.');
         }
 
-        if ($filePath && $base64Content) {
-            throw new \InvalidArgumentException('Provide either filePath or base64Content, not both.');
-        }
-
-        if ($filePath && !file_exists($filePath)) {
-            throw new \RuntimeException("File not found: {$filePath}");
-        }
-
-        if ($base64Content && !base64_decode($base64Content, true)) {
+        if (!base64_decode($base64Content, true)) {
             throw new \InvalidArgumentException('Invalid base64 content.');
         }
     }
@@ -36,19 +27,21 @@ class UploadFileDto
         $fileName = basename($filePath);
         $resolvedMimeType = $mimeType ?? self::resolveMimeType($filePath);
 
+        $fileContent = file_get_contents($filePath);
+
+        if (false === $fileContent) {
+            throw new \RuntimeException("Failed to read file: {$filePath}");
+        }
+
         return new self(
             fileName: $fileName,
             mimeType: $resolvedMimeType,
-            filePath: $filePath
+            base64Content: base64_encode($fileContent)
         );
     }
 
     public static function fromBase64(string $base64Content, string $fileName, string $mimeType): self
     {
-        if (!base64_decode($base64Content, true)) {
-            throw new \InvalidArgumentException('Invalid base64 content.');
-        }
-
         return new self(
             fileName: $fileName,
             mimeType: $mimeType,
@@ -56,41 +49,14 @@ class UploadFileDto
         );
     }
 
-    public function getFileContents(): string
+    public function getBinaryFileContent(): string
     {
-        if (!empty($this->filePath)) {
-            if (!file_exists($this->filePath)) {
-                throw new \RuntimeException("File not found: {$this->filePath}");
-            }
-
-            $fileContents = file_get_contents($this->filePath);
-
-            if (!$fileContents) {
-                throw new \RuntimeException("Could not read file contents: {$this->filePath}");
-            }
-
-            return $fileContents;
-        }
-
-        if (!empty($this->base64Content)) {
-            return base64_decode($this->base64Content);
-        }
-
-        throw new \RuntimeException('Could not read file contents.');
+        return base64_decode($this->base64Content);
     }
 
-    public function getBase64EncodedContents(): string
+    public function getBase64EncodedContent(): string
     {
-        if (!empty($this->base64Content)) {
-            return $this->base64Content;
-        }
-
-        $fileContents = $this->getFileContents();
-        if (!$fileContents) {
-            throw new \RuntimeException('Could not read file contents.');
-        }
-
-        return base64_encode($this->getFileContents());
+        return $this->base64Content;
     }
 
     private static function resolveMimeType(string $filePath): string

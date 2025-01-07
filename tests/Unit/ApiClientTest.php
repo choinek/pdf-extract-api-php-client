@@ -12,11 +12,13 @@ use Choinek\PdfExtractApiClient\Http\CurlWrapper;
 use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiClient\Dto\OcrResponseDto;
 use Choinek\PdfExtractApiClient\Dto\ClearCacheResponseDto;
-use Choinek\PdfExtractApiClient\Dto\StorageListDto;
+use Choinek\PdfExtractApiClient\Dto\StorageListResponseDto;
 use Choinek\PdfExtractApiClient\Dto\LoadFileResponseDto;
 
 class ApiClientTest extends TestCase
 {
+    public const SUPER_SMALL_BASE_64_IMAGE = 'R0lGODlhAQABAAAAACw=';
+    public const SUPER_SMALL_BASE_64_PDF = 'JVBERi0xLjIgCjkgMCBvYmoKPDwKPj4Kc3RyZWFtCkJULyAzMiBUZiggIFlPVVIgVEVYVCBIRVJFICAgKScgRVQKZW5kc3RyZWFtCmVuZG9iago0IDAgb2JqCjw8Ci9UeXBlIC9QYWdlCi9QYXJlbnQgNSAwIFIKL0NvbnRlbnRzIDkgMCBSCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9LaWRzIFs0IDAgUiBdCi9Db3VudCAxCi9UeXBlIC9QYWdlcwovTWVkaWFCb3ggWyAwIDAgMjUwIDUwIF0KPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1BhZ2VzIDUgMCBSCi9UeXBlIC9DYXRhbG9nCj4+CmVuZG9iagp0cmFpbGVyCjw8Ci9Sb290IDMgMCBSCj4+CiUlRU9G';
     private CurlWrapper&MockObject $curlWrapper;
     private ApiClient $apiClient;
     private const HTTPS_MOCK_LOCALHOST = 'https://mock.localhost';
@@ -30,7 +32,7 @@ class ApiClientTest extends TestCase
 
     public function testRequestOcr(): void
     {
-        $fileDto = new UploadFileDto('file.pdf', 'application/pdf', __DIR__.'/../assets/sample.pdf');
+        $fileDto = new UploadFileDto('file.pdf', 'application/pdf', self::SUPER_SMALL_BASE_64_PDF);
         $ocrDto = new OcrRequestDto('strategy', 'model-name', $fileDto);
 
         $taskId = '1234';
@@ -67,14 +69,45 @@ class ApiClientTest extends TestCase
         );
     }
 
-    public function testClearCache(): void
+    public function testSuccessfullClearCache(): void
     {
-        $responseBody = json_encode(['success' => true]);
+        $responseBody = json_encode(['status' => 'OCR cache cleared']);
 
         $this->curlWrapper->method('exec')->willReturn($responseBody);
         $this->curlWrapper->method('getinfo')->willReturn(200);
         $this->curlWrapper->method('setopt')->willReturn(true);
         $this->curlWrapper->expects($this->once())->method('close');
+
+        $response = $this->apiClient->ocrClearCache();
+
+        $this->assertInstanceOf(ClearCacheResponseDto::class, $response);
+        $this->assertTrue($response->isSuccess());
+    }
+
+    public function testFailedClearCacheButAnswer200(): void
+    {
+        $responseBody = json_encode(['status' => 'OCR cache clear failed']);
+
+        $this->curlWrapper->method('exec')->willReturn($responseBody);
+        $this->curlWrapper->method('getinfo')->willReturn(200);
+        $this->curlWrapper->method('setopt')->willReturn(true);
+        $this->curlWrapper->expects($this->once())->method('close');
+
+        $response = $this->apiClient->ocrClearCache();
+
+        $this->assertInstanceOf(ClearCacheResponseDto::class, $response);
+        $this->assertFalse($response->isSuccess());
+    }
+
+    public function testFailedCacheClearWithBadAnswerCode(): void
+    {
+        $responseBody = json_encode(['status' => 'OCR cache clear failed']);
+
+        $this->curlWrapper->method('exec')->willReturn($responseBody);
+        $this->curlWrapper->method('getinfo')->willReturn(400);
+        $this->curlWrapper->expects($this->once())->method('close');
+
+        $this->expectException(\RuntimeException::class);
 
         $response = $this->apiClient->ocrClearCache();
 
@@ -93,7 +126,7 @@ class ApiClientTest extends TestCase
 
         $response = $this->apiClient->storageList();
 
-        $this->assertInstanceOf(StorageListDto::class, $response);
+        $this->assertInstanceOf(StorageListResponseDto::class, $response);
         $this->assertSame(['file1.pdf', 'file2.pdf'], $response->getFiles());
     }
 
@@ -114,7 +147,7 @@ class ApiClientTest extends TestCase
 
     public function testRequestOcrWithHttpError(): void
     {
-        $fileDto = new UploadFileDto('file.pdf', 'application/pdf', __DIR__.'/../assets/sample.pdf');
+        $fileDto = new UploadFileDto('file.pdf', 'application/pdf', self::SUPER_SMALL_BASE_64_PDF);
 
         $ocrDto = new OcrRequestDto('strategy', 'model-name', $fileDto);
 

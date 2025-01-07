@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Choinek\PdfExtractApiClient\Tests\Integration;
 
+use Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum;
 use PHPUnit\Framework\TestCase;
 use Choinek\PdfExtractApiClient\ApiClient;
 use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
@@ -11,6 +12,8 @@ use Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto;
 
 class ApiClientTest extends TestCase
 {
+    public const SUPER_SMALL_BASE_64_IMAGE = 'R0lGODlhAQABAAAAACw=';
+
     /**
      * @var resource|null
      */
@@ -123,7 +126,7 @@ class ApiClientTest extends TestCase
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort),
         );
 
-        $uploadFileDto = new UploadFileDto('sample.jpg', 'image/jpeg', __DIR__.'/../assets/sample.jpg');
+        $uploadFileDto = new UploadFileDto('sample.jpg', 'image/jpeg', self::SUPER_SMALL_BASE_64_IMAGE);
         $ocrRequestDto = new OcrRequestDto(
             'llama_vision',
             'llama3.2-vision',
@@ -187,7 +190,7 @@ class ApiClientTest extends TestCase
 
         $response = $client->ocrResultGetByTaskId('id-for-pending-task');
 
-        $this->assertEquals('pending', $response->getState(), 'The state of the task is not PENDING.');
+        $this->assertEquals(StateEnum::PENDING, $response->getState(), 'The state of the task is not PENDING.');
         $this->assertEquals('Task is pending...', $response->getStatus(), 'The status for PENDING state is incorrect.');
     }
 
@@ -199,14 +202,14 @@ class ApiClientTest extends TestCase
 
         $response = $client->ocrResultGetByTaskId('id-for-progress-task');
 
-        $this->assertEquals('progress', $response->getState(), 'The state of the task is not progress.');
+        $this->assertEquals(StateEnum::PROGRESS, $response->getState(), 'The state of the task is not progress.');
         $this->assertEquals('Processing task...', $response->getStatus(), 'The status for progress state is incorrect.');
         $responseArrayInfo = $response->getInfo();
         $this->assertIsArray($responseArrayInfo, 'The "info" is missing in the progress response.');
         $this->assertArrayHasKey('elapsed_time', $responseArrayInfo, 'The "elapsed_time" key is missing in the progress info.');
     }
 
-    public function testGetResultsuccessState(): void
+    public function testGetResultSuccessState(): void
     {
         $client = new ApiClient(
             sprintf('http://%s:%d', self::$serverHost, self::$serverPort)
@@ -214,7 +217,7 @@ class ApiClientTest extends TestCase
 
         $response = $client->ocrResultGetByTaskId('id-for-success-task');
 
-        $this->assertEquals('success', $response->getState(), 'The state of the task is not success.');
+        $this->assertEquals(StateEnum::SUCCESS, $response->getState(), 'The state of the task is not success.');
         $this->assertEquals('Extracted text content', $response->getResult(), 'The extracted text for success state is incorrect.');
     }
 

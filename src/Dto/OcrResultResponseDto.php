@@ -50,19 +50,21 @@ final class OcrResultResponseDto implements ResponseDtoInterface
         }
 
         if (null !== $info) {
-            if (is_array($info)
-                && (
-                    !isset($info['progress']) || !is_numeric($info['progress'])
-                    || !isset($info['status']) || !is_string($info['status'])
-                    || !isset($info['start_time']) || !is_numeric($info['start_time'])
-                    || !isset($info['elapsed_time']) || !is_numeric($info['elapsed_time'])
-                )
-            ) {
-                throw new ApiResponseException('Invalid "info" in response.', 422, $responseBody);
-            } else {
-                $info['start_time'] = (float) $info['start_time'];
-                $info['elapsed_time'] = (float) $info['elapsed_time'];
-            }
+            $pureInfo = [
+                'progress' => (isset($info['progress']) && is_scalar($info['progress']))
+                        ? (string) $info['progress']
+                        : '',
+                'status' => (isset($info['status']) && is_scalar($info['status']))
+                        ? (string) $info['status']
+                        : '',
+                'start_time' => (isset($info['start_time']) && is_numeric($info['start_time']))
+                    ? (float) $info['start_time']
+                    : 0.0,
+                'elapsed_time' => (isset($info['elapsed_time']) && is_numeric($info['elapsed_time']))
+                    ? (float) $info['elapsed_time']
+                    : 0.0,
+            ];
+
         }
 
         return new self(
@@ -70,7 +72,7 @@ final class OcrResultResponseDto implements ResponseDtoInterface
             state: $state,
             status: $status,
             result: $result,
-            info: $info
+            info: $pureInfo ?? null,
         );
     }
 

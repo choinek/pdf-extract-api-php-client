@@ -16,7 +16,10 @@ class UploadFileDtoTest extends TestCase
 
         $this->assertSame('sample.pdf', $dto->fileName);
         $this->assertSame('application/pdf', $dto->mimeType);
-        $this->assertStringStartsWith('%PDF', $dto->getFileContents());
+        $this->assertStringStartsWith(
+            'JVBERi',
+            $dto->getBase64EncodedContent()
+        );
     }
 
     public function testFromFileWithCustomMimeType(): void
@@ -27,7 +30,7 @@ class UploadFileDtoTest extends TestCase
 
         $this->assertSame('sample.pdf', $dto->fileName);
         $this->assertSame($customMimeType, $dto->mimeType);
-        $this->assertStringStartsWith('%PDF', $dto->getFileContents());
+        $this->assertStringStartsWith('JVBERi', $dto->getBase64EncodedContent());
     }
 
     public function testFromFileWithInvalidPath(): void
@@ -49,8 +52,7 @@ class UploadFileDtoTest extends TestCase
 
         $this->assertSame('sample.pdf', $dto->fileName);
         $this->assertSame('application/pdf', $dto->mimeType);
-        $this->assertSame($fileContents, $dto->getFileContents());
-        $this->assertSame($base64Content, $dto->getBase64EncodedContents());
+        $this->assertSame($base64Content, $dto->getBase64EncodedContent());
     }
 
     public function testFromBase64WithInvalidContent(): void
@@ -66,10 +68,10 @@ class UploadFileDtoTest extends TestCase
         $filePath = self::ASSET_DIR.'/sample.pdf';
         $dto = UploadFileDto::fromFile($filePath);
 
-        $this->assertStringStartsWith('%PDF', $dto->getFileContents());
+        $this->assertStringStartsWith('JVBERi0xLjQKMS', $dto->getBase64EncodedContent());
     }
 
-    public function testGetFileContentsFromBase64(): void
+    public function testCompareBase64FromDtoAndDirect(): void
     {
         $filePath = self::ASSET_DIR.'/sample.pdf';
         $fileContents = file_get_contents($filePath) ?: '';
@@ -79,7 +81,7 @@ class UploadFileDtoTest extends TestCase
 
         $dto = UploadFileDto::fromBase64($base64Content, 'sample.pdf', 'application/pdf');
 
-        $this->assertSame($fileContents, $dto->getFileContents());
+        $this->assertSame($base64Content, $dto->getBase64EncodedContent());
     }
 
     public function testGetBase64EncodedContentsFromFile(): void
@@ -91,22 +93,22 @@ class UploadFileDtoTest extends TestCase
 
         $dto = UploadFileDto::fromFile($filePath);
 
-        $this->assertSame($expectedBase64, $dto->getBase64EncodedContents());
+        $this->assertSame($expectedBase64, $dto->getBase64EncodedContent());
     }
 
     public function testConstructorValidationMissingParameters(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Either filePath or base64Content must be provided.');
+        $this->expectExceptionMessage('Base64 content must be provided.');
 
-        new UploadFileDto('sample.pdf', 'application/pdf');
+        new UploadFileDto('sample.pdf', 'application/pdf', '');
     }
 
-    public function testConstructorValidationBothParameters(): void
+    public function testConstructorValidationCorruptedBase64(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Provide either filePath or base64Content, not both.');
+        $this->expectExceptionMessage('Invalid base64 content.');
 
-        new UploadFileDto('sample.pdf', 'application/pdf', '/path/to/file', 'base64content');
+        new UploadFileDto('sample.pdf', 'application/pdf', 'PDFINVALID###');
     }
 }

@@ -12,7 +12,7 @@ use Choinek\PdfExtractApiClient\Dto\OcrUploadRequestDto;
 use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiClient\Dto\OcrResponseDto;
 use Choinek\PdfExtractApiClient\Dto\ClearCacheResponseDto;
-use Choinek\PdfExtractApiClient\Dto\StorageListDto;
+use Choinek\PdfExtractApiClient\Dto\StorageListResponseDto;
 use Choinek\PdfExtractApiClient\Dto\LoadFileResponseDto;
 use Choinek\PdfExtractApiClient\Dto\DeleteFileResponseDto;
 
@@ -76,6 +76,8 @@ class ApiClient
         if ($statusCode >= 400) {
             throw new ApiResponseException(sprintf('%s HTTP status code > 400 %s: %s. Request info: %s', __METHOD__, $statusCode, $responseBody, var_export($requestInfo, true)), $statusCode, $responseBody);
         }
+
+        file_put_contents('REQSAVE', $requestInfo."\n---\n".$responseBody."\n\n\n--------------", FILE_APPEND);
 
         return $responseDtoClass::fromResponse($responseBody);
     }
@@ -167,19 +169,19 @@ class ApiClient
         return $response;
     }
 
-    public function storageList(string $storageProfile = 'default'): StorageListDto
+    public function storageList(string $storageProfile = 'default'): StorageListResponseDto
     {
         $response = $this->request(
             'GET',
             '/storage/list',
-            StorageListDto::class,
+            StorageListResponseDto::class,
             [
                 'headers' => ['Content-Type' => 'application/json'],
                 'body' => json_encode(['storage_profile' => $storageProfile], JSON_THROW_ON_ERROR),
             ]
         );
 
-        if (!$response instanceof StorageListDto) {
+        if (!$response instanceof StorageListResponseDto) {
             throw new \UnexpectedValueException('Expected instance of ListFilesResponseDto, got '.get_class($response));
         }
 
@@ -188,13 +190,13 @@ class ApiClient
 
     public function storageLoadFileByName(string $fileName, string $storageProfile = 'default'): LoadFileResponseDto
     {
+        $queryParams = http_build_query(['file_name' => $fileName, 'storage_profile' => $storageProfile]);
         $response = $this->request(
             'GET',
-            '/storage/load',
+            '/storage/load?'.$queryParams,
             LoadFileResponseDto::class,
             [
                 'headers' => ['Content-Type' => 'application/json'],
-                'body' => json_encode(['file_name' => $fileName, 'storage_profile' => $storageProfile], JSON_THROW_ON_ERROR),
             ]
         );
 

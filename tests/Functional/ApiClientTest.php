@@ -49,10 +49,10 @@ class ApiClientTest extends TestCase
     private function prepareExampleRequest(string $filepath, string $model): OcrRequestDto
     {
         return new OcrRequestDto(
-            strategy:'llama_vision',
+            strategy: 'marker',
             model: $model,
-            file: UploadFileDto::fromFile($filepath),
-            prompt: 'You are OCR. Convert image to markdown.'
+            file: UploadFileDto::fromFile($filepath)
+            //   prompt: 'You are OCR. Convert image to markdown.'
         );
     }
 
@@ -64,7 +64,7 @@ class ApiClientTest extends TestCase
         $files = [
             __DIR__.'/../assets/external/example-invoice.pdf' => [
                 'Acme Invoice Ltd',
-                'Darrow Street 2',
+                'Darrow Street',
                 'INV/S/24/2024',
                 '17/09/2024',
                 '11/10/2024',

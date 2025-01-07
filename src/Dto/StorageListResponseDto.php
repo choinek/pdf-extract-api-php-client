@@ -2,7 +2,7 @@
 
 namespace Choinek\PdfExtractApiClient\Dto;
 
-final class StorageListDto implements ResponseDtoInterface
+final class StorageListResponseDto implements ResponseDtoInterface
 {
     /**
      * @param string[] $files

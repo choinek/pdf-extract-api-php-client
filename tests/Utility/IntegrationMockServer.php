@@ -46,7 +46,7 @@ class IntegrationMockServer
             }
 
         } elseif ('POST' === $this->method && '/ocr/clear_cache' === $this->path) {
-            $this->sendResponse(['success' => true], 200);
+            $this->sendResponse(['status' => 'OCR cache cleared'], 200);
         } elseif ('POST' === $this->method && '/llm/generate' === $this->path) {
             $this->sendResponse(['generated_text' => 'Generated text response'], 200);
 
@@ -56,14 +56,14 @@ class IntegrationMockServer
         } elseif ('GET' === $this->method && '/storage/list' === $this->path) {
             $this->sendResponse(['files' => ['file1.txt', 'file2.pdf']], 200);
 
-        } elseif ('GET' === $this->method && '/storage/load' == $this->path) {
+        } elseif ('GET' === $this->method && '/storage/load?file_name=file1.txt&storage_profile=default' == $this->path) {
             $this->sendResponse(['content' => 'File content here'], 200);
 
         } elseif ('DELETE' === $this->method && '/storage/delete' == $this->path) {
             $this->sendResponse(['success' => true], 200);
 
         } else {
-            $this->sendResponse(['error' => 'Endpoint not found'], 404);
+            $this->sendResponse(['error' => sprintf('Path: [%s] %s not found', $this->method, $this->path)], 404);
         }
     }
 
@@ -84,7 +84,7 @@ if (!isset($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'])) {
 
 $server = new IntegrationMockServer(
     method: $_SERVER['REQUEST_METHOD'],
-    path: strtok($_SERVER['REQUEST_URI'], '?') ?: $_SERVER['REQUEST_URI']
+    path: $_SERVER['REQUEST_URI']
 );
 
 $server->handle();
