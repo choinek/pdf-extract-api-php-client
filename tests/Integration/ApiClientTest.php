@@ -147,6 +147,10 @@ class ApiClientTest extends TestCase
         $response = $client->ocrClearCache();
 
         $this->assertTrue($response->isSuccess());
+        $this->assertEquals([
+            'success' => true,
+            'status' => 'OCR cache cleared',
+        ], $response->toArray());
     }
 
     public function testListFiles(): void
@@ -190,6 +194,8 @@ class ApiClientTest extends TestCase
 
         $response = $client->ocrResultGetByTaskId('id-for-pending-task');
 
+        $this->assertTrue($response->getState()->isPending());
+        $this->assertTrue($response->getState()->isProcessing());
         $this->assertEquals(StateEnum::PENDING, $response->getState(), 'The state of the task is not PENDING.');
         $this->assertEquals('Task is pending...', $response->getStatus(), 'The status for PENDING state is incorrect.');
     }
@@ -202,6 +208,8 @@ class ApiClientTest extends TestCase
 
         $response = $client->ocrResultGetByTaskId('id-for-progress-task');
 
+        $this->assertTrue($response->getState()->isProgress());
+        $this->assertTrue($response->getState()->isProcessing());
         $this->assertEquals(StateEnum::PROGRESS, $response->getState(), 'The state of the task is not progress.');
         $this->assertEquals('Processing task...', $response->getStatus(), 'The status for progress state is incorrect.');
         $responseArrayInfo = $response->getInfo();
@@ -217,6 +225,7 @@ class ApiClientTest extends TestCase
 
         $response = $client->ocrResultGetByTaskId('id-for-success-task');
 
+        $this->assertTrue($response->getState()->isSuccess());
         $this->assertEquals(StateEnum::SUCCESS, $response->getState(), 'The state of the task is not success.');
         $this->assertEquals('Extracted text content', $response->getResult(), 'The extracted text for success state is incorrect.');
     }

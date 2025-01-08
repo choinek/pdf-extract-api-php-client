@@ -104,7 +104,7 @@ class UploadFileDtoTest extends TestCase
         new UploadFileDto('sample.pdf', 'application/pdf', '');
     }
 
-    public function testConstructorValidationCorruptedBase64(): void
+    public function testConstructorValidationShould(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid base64 content.');

@@ -15,8 +15,12 @@ class ApiResponseException extends ApiClientException
      * @param string|null     $responseBody the raw response body from the server (optional)
      * @param \Throwable|null $previous     the previous exception used for exception chaining
      */
-    public function __construct(string $message, int $statusCode, ?string $responseBody = null, ?\Throwable $previous = null)
-    {
+    public function __construct(
+        string $message,
+        int $statusCode,
+        ?string $responseBody = null,
+        ?\Throwable $previous = null,
+    ) {
         $detailedMessage = sprintf(
             "Error communicating with the pdf-extract-api service.\nStatus Code: %d\nMessage: %s\nResponse: %s",
             $statusCode,
