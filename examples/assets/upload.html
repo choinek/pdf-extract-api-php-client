@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Drop Zone</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+        }
+
+        .drop-zone {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-right: 2px solid #ddd;
+            background-color: #f9f9f9;
+            text-align: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .drop-zone.drag-over {
+            background-color: #e6f7ff;
+        }
+
+        .drop-zone h2 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .text-section {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        .text-section h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .text-section p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.5;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        /* Popup styles */
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .popup.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .popup .content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .popup h2 {
+            margin-bottom: 10px;
+        }
+
+        .popup .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #ddd;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        .popup .info {
+            font-size: 16px;
+            color: #333;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .popup .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .popup .status.pending, .popup .status.progress {
+            background: #f0ad4e;
+            color: #fff;
+        }
+
+        .popup .status.success {
+            background: #5cb85c;
+            color: #fff;
+        }
+
+        .popup .status.failure {
+            background: #d9534f;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="dropZone" class="drop-zone">
+        <h2>Drop your file here</h2>
+    </div>
+    <div class="text-section">
+        <h2>PDF Extract API - Example Gui</h2>
+        <p>
+            Drag and drop file into the left panel to upload them and send to OCR.
+            Drag and drop file into the left panel to upload them and send to OCR.
+        </p>
+    </div>
+</div>
+
+<div id="popup" class="popup">
+    <div class="content">
+        <h2 id="popupHeader">Uploading...</h2>
+        <div id="loader" class="loader"></div>
+        <div id="info" class="info"></div>
+        <div id="status" class="status pending">Pending</div>
+    </div>
+</div>
+
+<script>
+    const setupDropZone = (dropZoneId, uploadUrl, statusUrl) => {
+        const dropZone = document.getElementById(dropZoneId);
+        const popup = document.getElementById('popup');
+        const popupHeader = document.getElementById('popupHeader');
+        const loader = document.getElementById('loader');
+        const info = document.getElementById('info');
+        const status = document.getElementById('status');
+
+        const showPopup = () => popup.classList.add('active');
+        const hidePopup = () => popup.classList.remove('active');
+
+        const updatePopup = (header, statusText, statusClass, additionalInfo = '') => {
+            popupHeader.textContent = header;
+            status.textContent = statusText;
+            status.className = `status ${statusClass}`;
+            info.innerHTML = additionalInfo;
+        };
+
+        const pollTaskStatus = async (taskId, fileInfo) => {
+            try {
+                const response = await fetch(`${statusUrl}?taskStatusById=${taskId}`);
+                const result = await response.json();
+
+                console.log(fileInfo);
+                if (response.ok && !result.error) {
+                    updatePopup(
+                        'Processing...',
+                        result.ocr.state,
+                        result.ocr.state === 'failure' ? 'failure' : 'progress',
+                        `
+                <p><strong>File Name:</strong> ${fileInfo.name}</p>
+                <p><strong>File Type:</strong> ${fileInfo.type}</p>
+                <p><strong>File Size:</strong> ${(fileInfo.size / 1024).toFixed(2)} KB</p>
+                <p><strong>OCR Task:</strong> ${taskId}</p>
+                <p><strong>Status:</strong> ${result.ocr.state}</p>
+                <p><strong>Status:</strong> ${result.ocr.status}</p>
+                <p><strong>Info:</strong> ${result.ocr.info}</p>
+            `
+                    );
+
+                    if (result.ocr.state === 'done') {
+                        loader.style.display = 'none';
+                        updatePopup('File Uploaded', 'Completed', 'success', `
+                <p><strong>Final Response:</strong> ${result.ocr.finalResponse}</p>
+            `);
+                    } else if (result.ocr.state !== 'failure') {
+                        setTimeout(() => pollTaskStatus(taskId, fileInfo), 1000);
+                    }
+                } else {
+                    throw new Error(result.error || 'Error while checking status');
+                }
+            } catch (error) {
+                updatePopup('Error', 'Failure', 'failure', `<p>${error.message}</p>`);
+            }
+        };
+
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const formData = new FormData();
+                formData.append('files[]', files[0]);
+
+                showPopup();
+                updatePopup('Uploading...', 'Pending', 'pending');
+
+                try {
+                    const response = await fetch(uploadUrl, {
+                        method: 'POST',
+                        body: formData,
+                    });
+                    const result = await response.json();
+
+                    if (response.ok && !result.error) {
+                        updatePopup(
+                            'File Uploaded',
+                            'Processing',
+                            'progress',
+                            `
+                            <p><strong>File Name:</strong> ${result.file.name}</p>
+                            <p><strong>File Type:</strong> ${result.file.type}</p>
+                            <p><strong>File Size:</strong> ${(result.file.size / 1024).toFixed(2)} KB</p>
+                            <p><strong>OCR Task:</strong> ${result.taskId}</p>
+                            <p><strong>Status:</strong> ${result.ocr.state}</p>
+                        `
+                        );
+                        pollTaskStatus(result.taskId, result.file);
+                    } else {
+                        throw new Error(result.error || 'Upload failed');
+                    }
+                } catch (error) {
+                    updatePopup('Error', 'Failure', 'failure', `<p>${error.message}</p>`);
+                }
+            }
+        });
+    };
+
+    // Usage
+    setupDropZone('dropZone', '', '');
+</script>
+</body>
+</html>
