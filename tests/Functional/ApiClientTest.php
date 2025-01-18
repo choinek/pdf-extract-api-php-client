@@ -7,7 +7,8 @@ namespace Choinek\PdfExtractApiClient\Tests\Functional;
 use Choinek\PdfExtractApiClient\ApiClient;
 use Choinek\PdfExtractApiClient\Dto\OcrRequestDto;
 use Choinek\PdfExtractApiClient\Dto\OcrRequest\UploadFileDto;
-use Choinek\PdfExtractApiClient\Dto\OcrResult\StateEnum;
+use Choinek\PdfExtractApiClient\Tests\Utility\SimilarityValidator;
+use FuzzyWuzzy\Fuzz;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
@@ -20,12 +21,25 @@ class ApiClientTest extends TestCase
     /**
      * @var string[]
      */
-    public static array $models = ['llama3.2-vision'];
+    public static array $models = ['llama3.2-vision', 'llama3.1'];
+
+    /**
+     * @var string[]
+     */
+    public static array $strategies = ['llama_vision', 'easyocr'];
+    // public static array $strategies = ['easyocr'];
+
+    /**
+     * @var string[]
+     */
+    public static array $storages = ['default', 's3'];
+
     private ApiClient $apiClient;
 
     public function __construct(
         string $name,
         private string $baseUrl = 'http://localhost:8000',
+        private readonly SimilarityValidator $similarityValidator = new SimilarityValidator(new Fuzz()),
     ) {
         if (getenv('TEST_API_URL')) {
             $this->baseUrl = getenv('TEST_API_URL');
@@ -46,20 +60,22 @@ class ApiClientTest extends TestCase
         $this->apiClient->ocrClearCache();
     }
 
-    private function prepareExampleRequest(string $filepath, string $model): OcrRequestDto
+    private function prepareExampleRequest(string $filepath, string $model, string $strategy, string $storage): OcrRequestDto
     {
         return new OcrRequestDto(
-            strategy: 'marker',
+            strategy: $strategy,
             model: $model,
-            file: UploadFileDto::fromFile($filepath)
-            //   prompt: 'You are OCR. Convert image to markdown.'
+            file: UploadFileDto::fromFile($filepath),
+            ocrCache: false,
+            storageProfile: $storage,
+            storageFilename: basename($filepath)
         );
     }
 
     /**
      * @return array<string, array{filepath: string, textContains: string[], model: string}>
      */
-    public function filesToParseDataProvider(): array
+    public static function filesToParseDataProvider(): array
     {
         $files = [
             __DIR__.'/../assets/external/example-invoice.pdf' => [
@@ -81,12 +97,18 @@ class ApiClientTest extends TestCase
         $data = [];
         foreach ($files as $file => $textContains) {
             foreach (self::$models as $model) {
-                $key = 'read '.basename($file).' with '.$model;
-                $data[$key] = [
-                    'filepath' => $file,
-                    'textContains' => $textContains,
-                    'model' => $model,
-                ];
+                foreach (self::$strategies as $strategy) {
+                    foreach (self::$storages as $storage) {
+                        $key = 'read '.basename($file).' with extract strategy: '.$strategy.' and model: '.$model.' saved in '.$storage;
+                        $data[$key] = [
+                            'filepath' => $file,
+                            'textContains' => $textContains,
+                            'model' => $model,
+                            'strategy' => $strategy,
+                            'storage' => $storage,
+                        ];
+                    }
+                }
             }
         }
 
@@ -95,7 +117,10 @@ class ApiClientTest extends TestCase
 
     public function testPullApi(): void
     {
+        $pullApiResponse = $this->apiClient->llmPull('smollm:135m');
 
+        $this->assertEquals('success', $pullApiResponse->getStatus());
+        $this->assertTrue($pullApiResponse->isSuccess());
     }
 
     public function testClearCache(): void
@@ -107,18 +132,17 @@ class ApiClientTest extends TestCase
 
     /**
      * @param string[] $textContains
+     *
+     * @throws \JsonException
      */
     #[DataProvider('filesToParseDataProvider')]
-    #[Depends('testClearCache')]
-    public function testReadTextFromImagesUsingOcrRequestMethod(string $filepath, array $textContains, string $model): void
+    public function testReadTextFromImagesUsingOcrRequestMethod(string $filepath, array $textContains, string $model, string $strategy, string $storage): void
     {
-        $ocrRequest = $this->prepareExampleRequest($filepath, $model);
+        $ocrRequest = $this->prepareExampleRequest($filepath, $model, $strategy, $storage);
 
         $ocrRequestResponse = $this->apiClient->ocrRequest($ocrRequest);
-
         $taskId = $ocrRequestResponse->getTaskId();
         $this->assertNotNull($taskId);
-
 
         $start = microtime(true);
         do {
@@ -133,27 +157,27 @@ class ApiClientTest extends TestCase
 
             $ocrResultResponse = $this->apiClient->ocrResultGetByTaskId($ocrRequestResponse->getTaskId());
 
-            if (StateEnum::FAILURE === $ocrResultResponse->getState()) {
+            if ($ocrResultResponse->getState()->isFailure()) {
                 $this->fail('OCR failed: '.$ocrResultResponse->getStatus());
             }
 
             sleep(1);
-        } while (StateEnum::SUCCESS !== $ocrResultResponse->getState());
+        } while (!$ocrResultResponse->getState()->isFinished());
 
-        foreach ($textContains as $textContain) {
-            if (null === $ocrResultResponse->getResult()) {
-                $this->fail('Result is null');
-            }
-
-            $this->assertStringContainsStringIgnoringCase($textContain, $ocrResultResponse->getResult());
+        $ocrResultResponse = $ocrResultResponse->getResult();
+        if (null === $ocrResultResponse) {
+            $this->fail('OCR Response is null');
         }
+
+        $this->similarityValidator->validateMultipleTerms(mb_strtolower($ocrResultResponse), $textContains);
     }
 
-    /**
-     * @depends testReadTextFromImagesUsingOcrRequestMethod
-     */
-    public function testStorageList(): void
-    {
-        $storageListResponse = $this->apiClient->storageList();
-    }
+    //    /**
+    //     * @depends testReadTextFromImagesUsingOcrRequestMethod
+    //     */
+    //    public function testStorageList(): void
+    //    {
+    //        $storageListResponse = $this->apiClient->storageList();
+    //
+    //    }
 }

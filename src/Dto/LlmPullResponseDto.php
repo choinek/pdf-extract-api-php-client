@@ -26,7 +26,7 @@ final class LlmPullResponseDto implements ResponseDtoInterface
 
     public function isSuccess(): bool
     {
-        return 'Model pulled successfully' === $this->getStatus();
+        return 'success' === $this->getStatus();
     }
 
     public function getStatus(): string

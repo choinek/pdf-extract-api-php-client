@@ -15,6 +15,7 @@ use Choinek\PdfExtractApiClient\Dto\ClearCacheResponseDto;
 use Choinek\PdfExtractApiClient\Dto\StorageListResponseDto;
 use Choinek\PdfExtractApiClient\Dto\LoadFileResponseDto;
 use Choinek\PdfExtractApiClient\Dto\DeleteFileResponseDto;
+use CURLFile;
 
 class ApiClient
 {
@@ -30,14 +31,15 @@ class ApiClient
      * @param class-string<ResponseDtoInterface> $responseDtoClass
      * @param array{
      *     headers?: array<string, string>,
-     *     body?: array<string, string|\CURLFile>|string|null
+     *     body?: array<string, string|CURLFile>|string|null
      * } $options
      */
     protected function request(string $method, string $endpoint, string $responseDtoClass, array $options = []): ResponseDtoInterface
     {
         $url = rtrim($this->baseUrl, '/').$endpoint;
         $curlWrapper = $this->curlWrapper->init($url);
-        $requestInfo = json_encode(['url' => $url, 'method' => $method, 'options' => $options]);
+        //        $requestInfo = json_encode(['url' => $url, 'method' => $method]); // options' => $options] @todo must be converted to DebugRequestInfo class
+        $requestInfo = json_encode(['url' => $url, 'method' => $method]);
 
         $curlWrapper->setopt(CURLOPT_CUSTOMREQUEST, strtoupper($method));
         $curlWrapper->setopt(CURLOPT_RETURNTRANSFER, true);
@@ -101,6 +103,9 @@ class ApiClient
         return $response;
     }
 
+    /**
+     * @throws \JsonException
+     */
     public function ocrRequest(OcrRequestDto $dto): OcrResponseDto
     {
         $response = $this->request(
@@ -150,6 +155,9 @@ class ApiClient
         return $response;
     }
 
+    /**
+     * @throws \JsonException
+     */
     public function llmPull(string $model): LlmPullResponseDto
     {
         $response = $this->request(
